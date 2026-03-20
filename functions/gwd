@@ -1,0 +1,23 @@
+# Remove a worktree and return to the nearest repo root if the current shell
+# was somewhere inside .worktrees/.
+#
+# If deletion fails, this prints the same structured diagnostic view exposed by
+# "gwdiff" so the reason is immediately visible.
+gwd() {
+  local currentDir gitCommonDir removeOutput repoRoot shouldCdBack=0 worktreeDir
+
+  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  repoRoot=${gitCommonDir:h}
+  currentDir=${PWD:A}
+  worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
+
+  [[ $currentDir == "$repoRoot/.worktrees" || $currentDir == "$repoRoot/.worktrees/"* ]] && shouldCdBack=1
+
+  removeOutput=$(git worktree remove "$@" 2>&1) || {
+    print -r -- "$removeOutput"
+    [[ -n "$worktreeDir" ]] && _gw_print_worktree_diff "$worktreeDir"
+    return 1
+  }
+
+  (( shouldCdBack )) && gwp
+}

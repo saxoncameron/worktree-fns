@@ -1,0 +1,7 @@
+# Force-remove a worktree using the same control flow as "gwd".
+#
+# Delegating to "gwd" keeps the completion behavior, repo-root fallback, and
+# any future deletion diagnostics in one place.
+gwdf() {
+  gwd --force "$@"
+}

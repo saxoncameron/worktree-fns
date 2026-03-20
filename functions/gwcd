@@ -1,0 +1,13 @@
+# Cd into a named worktree directory under the nearest repo's .worktrees dir.
+#
+# This intentionally accepts the short worktree name rather than requiring a
+# full path, because the standardized ./.worktrees/<name> layout makes that
+# unambiguous.
+gwcd() {
+  local repoRoot worktreeDir
+  repoRoot=$(_gw_find_repo_root) || return 1
+  worktreeDir="$repoRoot/.worktrees/$1"
+
+  [[ -d "$worktreeDir" ]] || return 1
+  builtin cd "$worktreeDir"
+}

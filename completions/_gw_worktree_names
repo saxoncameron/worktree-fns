@@ -1,0 +1,9 @@
+# Complete worktree names from the nearest repo's .worktrees directory.
+#
+# This completion function is shared by every command that expects a worktree
+# identifier, which keeps the command files themselves focused on behavior.
+_gw_worktree_names() {
+  local repoRoot
+  repoRoot=$(_gw_find_repo_root) || return 1
+  _files -W "$repoRoot/.worktrees" -/
+}

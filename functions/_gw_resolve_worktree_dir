@@ -1,0 +1,23 @@
+# Resolve the final non-flag argument to a concrete worktree directory.
+#
+# Supported forms:
+# - bare worktree names such as "feature-x"
+# - relative paths such as "./.worktrees/feature-x"
+# - absolute paths
+#
+# The "last non-option wins" behavior mirrors the previous inline function and
+# makes wrapper commands like "gwd --force feature-x" work naturally.
+_gw_resolve_worktree_dir() {
+  local repoRoot resolvedPath targetArg
+  repoRoot=$1
+  shift
+
+  for targetArg in "$@"; do
+    [[ $targetArg == -* ]] && continue
+    resolvedPath=
+
+    [[ -d "$repoRoot/.worktrees/$targetArg" ]] && resolvedPath="$repoRoot/.worktrees/$targetArg"
+    [[ -z "$resolvedPath" && -d "$targetArg" ]] && resolvedPath=${targetArg:A}
+    [[ -n "$resolvedPath" ]] && print -r -- "$resolvedPath"
+  done | tail -n 1
+}

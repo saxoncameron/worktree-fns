@@ -1,0 +1,23 @@
+# Copy local-only files that shape a usable worktree but may not be tracked by
+# Git, so "git worktree add" would otherwise omit them.
+#
+# Why this exists:
+# - .env files are often intentionally untracked but expected in every worktree
+# - nested .gitignore files can suppress generated-file noise inside worktrees
+#
+# The copy is intentionally conservative: it only fills holes in the new
+# worktree and never overwrites existing files produced by Git checkout.
+_gw_copy_local_overlay_files() {
+  local overlaySource overlayTarget relPath repoRoot worktreeRoot
+  repoRoot=$1
+  worktreeRoot=$2
+
+  while IFS= read -r -d '' overlaySource; do
+    relPath=${overlaySource#$repoRoot/}
+    overlayTarget="$worktreeRoot/$relPath"
+
+    [[ -e "$overlayTarget" ]] && continue
+    mkdir -p "${overlayTarget:h}"
+    cp "$overlaySource" "$overlayTarget"
+  done < <(find "$repoRoot" -path "$repoRoot/.worktrees" -prune -o -type f \( -name '.env' -o -name '.gitignore' \) -print0)
+}

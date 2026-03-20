@@ -1,0 +1,23 @@
+# Create a linked worktree under ./.worktrees/<name> and cd into it.
+#
+# The helper deliberately standardizes the location of linked worktrees so the
+# rest of the suite can reason about them consistently.
+#
+# After Git creates the worktree, we copy a small set of local overlay files
+# into it. That preserves untracked .env files and nested .gitignore files that
+# often matter in day-to-day development but are not part of the checkout.
+gwa() {
+  local constWorktree repoRoot worktreeRoot
+  constWorktree="./.worktrees/$1"
+  repoRoot=$(git rev-parse --show-toplevel) || return 1
+  worktreeRoot="$repoRoot/.worktrees/$1"
+
+  if [[ -n "$2" ]]; then
+    git worktree add "$constWorktree" "$2" || return 1
+  else
+    git worktree add "$constWorktree" || return 1
+  fi
+
+  _gw_copy_local_overlay_files "$repoRoot" "$worktreeRoot"
+  builtin cd "$constWorktree"
+}

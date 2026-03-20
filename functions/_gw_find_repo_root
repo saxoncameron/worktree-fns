@@ -1,0 +1,15 @@
+# Find the nearest ancestor that owns a .worktrees directory.
+#
+# This gives the "repo root" for these helpers, even when the current working
+# directory is inside an individual linked worktree.
+_gw_find_repo_root() {
+  local dir
+  dir=$PWD
+
+  while [[ $dir != "/" ]]; do
+    [[ -d "$dir/.worktrees" ]] && print -r -- "$dir" && return 0
+    dir=${dir:h}
+  done
+
+  return 1
+}

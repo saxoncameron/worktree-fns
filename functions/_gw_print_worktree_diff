@@ -1,0 +1,44 @@
+# Print a compact, colorized diagnostic view of a worktree's changes.
+#
+# The output is deliberately shaped like a focused "git status" plus diff
+# summaries:
+# - branch and porcelain status
+# - staged change summary
+# - unstaged change summary
+# - explicit untracked file list
+#
+# This is shared by "gwd" and "gwdiff" so both commands explain the worktree in
+# exactly the same way.
+_gw_print_worktree_diff() {
+  local stagedOutput statusOutput untrackedOutput unstagedOutput worktreeDir
+  worktreeDir=$1
+
+  [[ -d "$worktreeDir" ]] || return 1
+
+  statusOutput=$(git -C "$worktreeDir" status --short --branch --untracked-files=all 2>/dev/null | _gw_colorize_status_output)
+  stagedOutput=$(git -C "$worktreeDir" -c color.ui=always diff --cached --stat --summary 2>/dev/null)
+  unstagedOutput=$(git -C "$worktreeDir" -c color.ui=always diff --stat --summary 2>/dev/null)
+  untrackedOutput=$(git -C "$worktreeDir" ls-files --others --exclude-standard 2>/dev/null)
+
+  echo
+  print -P "%F{yellow}Worktree has pending changes:%f $worktreeDir"
+  [[ -n "$statusOutput" ]] && print -r -- "$statusOutput"
+
+  if [[ -n "$stagedOutput" ]]; then
+    echo
+    print -P "%F{green}Staged changes:%f"
+    print -r -- "$stagedOutput"
+  fi
+
+  if [[ -n "$unstagedOutput" ]]; then
+    echo
+    print -P "%F{red}Unstaged changes:%f"
+    print -r -- "$unstagedOutput"
+  fi
+
+  if [[ -n "$untrackedOutput" ]]; then
+    echo
+    print -P "%F{red}Untracked files:%f"
+    print -r -- "$untrackedOutput" | sed $'s/^/\033[31m?? \033[39m/'
+  fi
+}

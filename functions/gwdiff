@@ -1,0 +1,15 @@
+# Show the current change summary for a named worktree on demand.
+#
+# This is useful both for ad hoc inspection and for explaining why a "gwd"
+# deletion failed. Keeping it as a first-class command also makes the failure
+# path in "gwd" much easier to reason about.
+gwdiff() {
+  local gitCommonDir repoRoot worktreeDir
+
+  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  repoRoot=${gitCommonDir:h}
+  worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
+
+  [[ -n "$worktreeDir" ]] || return 1
+  _gw_print_worktree_diff "$worktreeDir"
+}

@@ -1,0 +1,10 @@
+# Return to the root of the current checked-out worktree.
+#
+# This differs from "gwp":
+# - "gwr" uses Git's current worktree top-level
+# - "gwp" uses the nearest parent containing .worktrees
+gwr() {
+  local worktreeRoot
+  worktreeRoot=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  builtin cd "$worktreeRoot"
+}

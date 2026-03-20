@@ -1,0 +1,8 @@
+# Add a minimal red tint to non-branch status lines.
+#
+# Git's colored porcelain is harder to post-process because the ANSI escapes
+# interfere with filtering. This helper keeps status output easy to filter
+# first, then adds lightweight color afterward.
+_gw_colorize_status_output() {
+  sed -E $'s/^(\\?\\? .*)/\033[31m\\1\033[39m/; s/^([ MADRCUT][ MADRCUT] .*)/\033[31m\\1\033[39m/'
+}

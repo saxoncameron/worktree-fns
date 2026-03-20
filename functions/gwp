@@ -1,0 +1,10 @@
+# Jump to the nearest repo root recognized by this helper suite.
+#
+# The marker is ".worktrees", not ".git". That distinction matters because we
+# want "gwp" to land on the owning repository root even when the current shell
+# is inside a linked worktree.
+gwp() {
+  local repoRoot
+  repoRoot=$(_gw_find_repo_root) || return 1
+  builtin cd "$repoRoot"
+}

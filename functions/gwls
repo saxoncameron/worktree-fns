@@ -1,0 +1,5 @@
+# Lightweight wrapper so the worktree helper suite exposes a complete "gw*"
+# surface without relying on aliases in ~/.zshrc.
+gwls() {
+  git worktree list "$@"
+}
