@@ -9,8 +9,10 @@ _gw_spinner() {
   local i=1
 
   # Open tty once on fd 3; clean up on exit
-  exec 3>/dev/tty
-  trap 'print -rn -- "\r\e[2K" >&3; exec 3>&-' EXIT HUP TERM INT
+  [[ -t 2 ]] || return 0
+  exec 3>/dev/tty 2>/dev/null || return 0
+  trap 'exec 3>&- 2>/dev/null' EXIT
+  trap 'print -rn -- "\r\e[2K" >&3 2>/dev/null; exec 3>&-; exit 0' HUP TERM INT
 
   while true; do
     print -rn -- "\r${label} ${frames[i]}" >&3
