@@ -34,7 +34,6 @@ gwd() {
   removeStatus=$?
   kill $spinnerPid 2>/dev/null
   wait $spinnerPid 2>/dev/null
-  print -rn -- "\r\e[2K" >>/dev/tty
 
   if (( removeStatus )); then
     print -r -- "$removeOutput"

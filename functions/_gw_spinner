@@ -1,12 +1,19 @@
 # Run an animated spinner in the background. Writes directly to /dev/tty so it
-# works even when the caller captures stdout. Kills itself when the given pid
-# exits. Usage: _gw_spinner <label> & — then kill $! when done.
+# works even when the caller captures stdout. Usage:
+#   _gw_spinner <label> &
+#   ...work...
+#   kill $! 2>/dev/null; wait $! 2>/dev/null
 _gw_spinner() {
   local label=$1
   local frames=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
   local i=1
+
+  # Open tty once on fd 3; clean up on exit
+  exec 3>/dev/tty
+  trap 'print -rn -- "\r\e[2K" >&3; exec 3>&-' EXIT HUP TERM INT
+
   while true; do
-    print -rn -- "\r${label} ${frames[i]}" >>/dev/tty
+    print -rn -- "\r${label} ${frames[i]}" >&3
     (( i = i % ${#frames[@]} + 1 ))
     sleep 0.08
   done
