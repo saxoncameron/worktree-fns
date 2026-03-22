@@ -28,13 +28,10 @@ gwd() {
     fi
   fi
 
-  local worktreeName=${worktreeDir:t} spinnerPid removeStatus
-  _gw_spinner "Removing worktree \"$worktreeName\"" &
-  spinnerPid=$!
+  local removeStatus
+  print "Deleting worktree..."
   removeOutput=$(git worktree remove "$@" 2>&1)
   removeStatus=$?
-  kill $spinnerPid 2>/dev/null
-  wait $spinnerPid 2>/dev/null
 
   if (( removeStatus )); then
     print -r -- "$removeOutput"
@@ -42,5 +39,6 @@ gwd() {
     return 1
   fi
 
+  print "Done"
   (( shouldCdBack )) && gwp
 }

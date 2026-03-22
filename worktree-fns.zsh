@@ -22,7 +22,6 @@ autoload -Uz \
   _gw_find_repo_root \
   _gw_print_worktree_diff \
   _gw_resolve_worktree_dir \
-  _gw_spinner \
   _gw_worktree_names
 
 # Register one completion function for every command that expects a worktree
