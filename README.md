@@ -35,6 +35,7 @@ gwp
 gwr
 
 # (d)elete speified worktree (print diff if delete fails)
+# also deletes the same-named branch created for that worktree
 gwd <name-or-path>
 
 # delete --force (if changes detected)
@@ -68,4 +69,3 @@ from the new worktree:
 
 This helps with common local-only setup, including nested ignore rules that
 prevent generated files from showing up as false-positive changes.
-

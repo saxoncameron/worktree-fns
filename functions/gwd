@@ -6,7 +6,7 @@
 # diagnostic view exposed by "gwdiff" so the reason is immediately visible.
 gwd() {
   setopt local_options no_monitor
-  local arg currentDir gitCommonDir hasForce=0 mainHead removeOutput repoRoot
+  local arg branchName branchDeleteOutput currentDir gitCommonDir hasForce=0 mainHead removeOutput repoRoot
   local shouldCdBack=0 unmergedOutput worktreeDir
 
   gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
@@ -17,6 +17,7 @@ gwd() {
   for arg in "$@"; do [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1; done
 
   [[ $currentDir == "$repoRoot/.worktrees" || $currentDir == "$repoRoot/.worktrees/"* ]] && shouldCdBack=1
+  [[ -n "$worktreeDir" ]] && branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null)
 
   if (( ! hasForce )) && [[ -n "$worktreeDir" ]]; then
     mainHead=$(git -C "$repoRoot" rev-parse HEAD 2>/dev/null)
@@ -39,6 +40,14 @@ gwd() {
     return 1
   fi
 
+  if [[ -n "$branchName" && -n "$worktreeDir" && "$branchName" == "${worktreeDir:t}" ]]; then
+    branchDeleteOutput=$(git -C "$repoRoot" branch -D -- "$branchName" 2>&1) || {
+      print -r -- "$branchDeleteOutput"
+      return 1
+    }
+  fi
+
   print "Done"
   (( shouldCdBack )) && gwp
+  return 0
 }
