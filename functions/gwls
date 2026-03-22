@@ -11,6 +11,7 @@ gwls() {
   local worktreeInfo=$(git worktree list --porcelain)
   worktreeInfo+=$'\n'
 
+  local repo_root=$(_gw_find_repo_root)
   local line path branch
   while IFS= read -r line; do
     if [[ "$line" == worktree\ * ]]; then
@@ -18,6 +19,10 @@ gwls() {
     elif [[ "$line" == branch\ * ]]; then
       branch="${line#branch }"
     elif [[ -z "$line" && -n "$path" ]]; then
+      if [[ "$path" == "$repo_root" ]]; then
+        path="" branch=""
+        continue
+      fi
       local name="${path##*/}" indicator=""
 
       if [[ -n "$branch" && "$branch" != "refs/heads/main" ]]; then
