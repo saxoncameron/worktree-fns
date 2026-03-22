@@ -1,6 +1,7 @@
 # Lightweight wrapper so the worktree helper suite exposes a complete "gw*"
 # surface without relying on aliases in ~/.zshrc.
 gwls() {
+  print ""
   print "Available worktrees:"
   git worktree list --porcelain | awk -F'/' '/^worktree / { print "  • " $NF }'
 }
