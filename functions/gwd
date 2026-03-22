@@ -1,17 +1,31 @@
 # Remove a worktree and return to the nearest repo root if the current shell
 # was somewhere inside .worktrees/.
 #
-# If deletion fails, this prints the same structured diagnostic view exposed by
-# "gwdiff" so the reason is immediately visible.
+# Blocks removal when the worktree has unmerged commits (use --force to
+# override). If deletion fails for any reason, this prints the same structured
+# diagnostic view exposed by "gwdiff" so the reason is immediately visible.
 gwd() {
-  local currentDir gitCommonDir removeOutput repoRoot shouldCdBack=0 worktreeDir
+  local arg currentDir gitCommonDir hasForce=0 mainHead removeOutput repoRoot
+  local shouldCdBack=0 unmergedOutput worktreeDir
 
   gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
   repoRoot=${gitCommonDir:h}
   currentDir=${PWD:A}
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
+  for arg in "$@"; do [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1; done
+
   [[ $currentDir == "$repoRoot/.worktrees" || $currentDir == "$repoRoot/.worktrees/"* ]] && shouldCdBack=1
+
+  if (( ! hasForce )) && [[ -n "$worktreeDir" ]]; then
+    mainHead=$(git -C "$repoRoot" rev-parse HEAD 2>/dev/null)
+    [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
+    if [[ -n "$unmergedOutput" ]]; then
+      print "error: worktree has unmerged commits"
+      _gw_print_worktree_diff "$worktreeDir"
+      return 1
+    fi
+  fi
 
   removeOutput=$(git worktree remove "$@" 2>&1) || {
     print -r -- "$removeOutput"
