@@ -17,12 +17,12 @@ gwls() {
 
     if [[ -n "$branch" && "$branch" != "refs/heads/main" ]]; then
       local short="${branch##refs/heads/}"
-      local commits=$(git log "main..$short" --oneline 2>/dev/null | wc -l | tr -d ' ')
+      local commits=$(git log "main..$short" --oneline 2>/dev/null | awk 'END{print NR}')
 
       if [[ "$commits" -gt 0 ]]; then
         local shortstat=$(git diff "main...$short" --shortstat 2>/dev/null)
-        local insertions=$(print "$shortstat" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+')
-        local deletions=$(print "$shortstat" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+')
+        local insertions=$(awk 'match($0,/([0-9]+) insertion/,a){print a[1]}' <<< "$shortstat")
+        local deletions=$(awk 'match($0,/([0-9]+) deletion/,a){print a[1]}' <<< "$shortstat")
         [[ -z "$insertions" ]] && insertions=0
         [[ -z "$deletions" ]] && deletions=0
         indicator=" ${green}(+${insertions} lines, -${deletions} lines, +${commits} commits)${reset}"
