@@ -1,12 +1,15 @@
 # Lightweight wrapper so the worktree helper suite exposes a complete "gw*"
 # surface without relying on aliases in ~/.zshrc.
 #
-# Uses only zsh builtins + git (no awk/grep/wc — PATH may be restricted).
+# Captures porcelain output into a variable first, then parses with zsh
+# builtins — avoids pipelines / process substitution into loops where
+# autoloaded functions and PATH can behave unexpectedly.
 gwls() {
-  local green=$'\e[32m' reset=$'\e[0m'
-
   print ""
   print "Available worktrees:"
+
+  local porcelain=$(git worktree list --porcelain)
+  porcelain+=$'\n'
 
   local line path branch
   while IFS= read -r line; do
@@ -15,8 +18,7 @@ gwls() {
     elif [[ "$line" == branch\ * ]]; then
       branch="${line#branch }"
     elif [[ -z "$line" && -n "$path" ]]; then
-      local name="${path##*/}"
-      local indicator=""
+      local name="${path##*/}" indicator=""
 
       if [[ -n "$branch" && "$branch" != "refs/heads/main" ]]; then
         local short="${branch##refs/heads/}"
@@ -27,12 +29,12 @@ gwls() {
           local insertions=0 deletions=0
           [[ "$shortstat" =~ '([0-9]+) insertion' ]] && insertions=$match[1]
           [[ "$shortstat" =~ '([0-9]+) deletion' ]] && deletions=$match[1]
-          indicator=" ${green}(+${insertions}/-${deletions} lines, ${commits} commits)${reset}"
+          indicator=" %F{green}(+${insertions}/-${deletions} lines, ${commits} commits)%f"
         fi
       fi
 
-      print "  • $name$indicator"
+      print -P "  • $name$indicator"
       path="" branch=""
     fi
-  done < <(git worktree list --porcelain; print "")
+  done <<< "$porcelain"
 }
