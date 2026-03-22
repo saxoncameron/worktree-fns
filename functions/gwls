@@ -5,13 +5,11 @@
 # builtins — avoids pipelines / process substitution into loops where
 # autoloaded functions and PATH can behave unexpectedly.
 gwls() {
-  print ""
-  print "Available worktrees:"
-
   local worktreeInfo=$(git worktree list --porcelain)
   worktreeInfo+=$'\n'
 
   local repo_root=$(_gw_find_repo_root)
+  local entries=()
   local line path branch
   while IFS= read -r line; do
     if [[ "$line" == worktree\ * ]]; then
@@ -38,8 +36,16 @@ gwls() {
         fi
       fi
 
-      print -P "  • $name$indicator"
+      entries+=("  • $name$indicator")
       path="" branch=""
     fi
   done <<< "$worktreeInfo"
+
+  print ""
+  if (( ${#entries} == 0 )); then
+    print -P "No worktrees found. Use %F{cyan}gwa%f to add one."
+  else
+    print "Available worktrees:"
+    for entry in "${entries[@]}"; do print -P "$entry"; done
+  fi
 }
