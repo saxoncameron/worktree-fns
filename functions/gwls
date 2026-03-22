@@ -8,8 +8,8 @@ gwls() {
   print ""
   print "Available worktrees:"
 
-  local porcelain=$(git worktree list --porcelain)
-  porcelain+=$'\n'
+  local worktreeInfo=$(git worktree list --porcelain)
+  worktreeInfo+=$'\n'
 
   local line path branch
   while IFS= read -r line; do
@@ -36,5 +36,5 @@ gwls() {
       print -P "  • $name$indicator"
       path="" branch=""
     fi
-  done <<< "$porcelain"
+  done <<< "$worktreeInfo"
 }
