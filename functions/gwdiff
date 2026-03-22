@@ -4,7 +4,16 @@
 # deletion failed. Keeping it as a first-class command also makes the failure
 # path in "gwd" much easier to reason about.
 gwdiff() {
-  local gitCommonDir repoRoot worktreeDir
+  local gitCommonDir repoRoot worktreeDir hasArg=0
+
+  for arg in "$@"; do [[ $arg != -* ]] && { hasArg=1; break }; done
+
+  if (( !hasArg )); then
+    print -u2 "Usage: gwdiff <worktree>"
+    print -u2 ""
+    gwls
+    return 1
+  fi
 
   gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
   repoRoot=${gitCommonDir:h}
