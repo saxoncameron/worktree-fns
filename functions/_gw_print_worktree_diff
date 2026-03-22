@@ -1,18 +1,13 @@
 # Print a compact, colorized diagnostic view of a worktree's changes.
 #
-# The output is deliberately shaped like a focused "git status" plus diff
-# summaries:
-# - branch and porcelain status
+# Shows, in order:
+# - unstaged change summary (diff --stat)
 # - unmerged commits (ahead of main worktree HEAD)
-# - staged change summary
-# - unstaged change summary
-# - explicit untracked file list
 #
 # This is shared by "gwd" and "gwdiff" so both commands explain the worktree in
 # exactly the same way.
 _gw_print_worktree_diff() {
-  local gitCommonDir mainHead repoRoot stagedOutput statusOutput
-  local unmergedOutput untrackedOutput unstagedOutput worktreeDir
+  local gitCommonDir mainHead repoRoot unmergedOutput unstagedOutput worktreeDir
   worktreeDir=$1
 
   [[ -d "$worktreeDir" ]] || return 1
@@ -21,27 +16,11 @@ _gw_print_worktree_diff() {
   repoRoot=${gitCommonDir:h}
   mainHead=$(git -C "$repoRoot" rev-parse HEAD 2>/dev/null)
 
-  statusOutput=$(git -C "$worktreeDir" status --short --branch --untracked-files=all 2>/dev/null | _gw_colorize_status_output)
-  stagedOutput=$(git -C "$worktreeDir" -c color.ui=always diff --cached --stat --summary 2>/dev/null)
   unstagedOutput=$(git -C "$worktreeDir" -c color.ui=always diff --stat --summary 2>/dev/null)
-  untrackedOutput=$(git -C "$worktreeDir" ls-files --others --exclude-standard 2>/dev/null)
   [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
 
   echo
   print -P "%F{yellow}Worktree has pending changes:%f $worktreeDir"
-  [[ -n "$statusOutput" ]] && print -r -- "$statusOutput"
-
-  if [[ -n "$unmergedOutput" ]]; then
-    echo
-    print -P "%F{cyan}Unmerged commits:%f"
-    print -r -- "$unmergedOutput"
-  fi
-
-  if [[ -n "$stagedOutput" ]]; then
-    echo
-    print -P "%F{green}Staged changes:%f"
-    print -r -- "$stagedOutput"
-  fi
 
   if [[ -n "$unstagedOutput" ]]; then
     echo
@@ -49,9 +28,9 @@ _gw_print_worktree_diff() {
     print -r -- "$unstagedOutput"
   fi
 
-  if [[ -n "$untrackedOutput" ]]; then
+  if [[ -n "$unmergedOutput" ]]; then
     echo
-    print -P "%F{red}Untracked files:%f"
-    print -r -- "$untrackedOutput" | sed $'s/^/\033[31m?? \033[39m/'
+    print -P "%F{cyan}Unmerged commits:%f"
+    print -r -- "$unmergedOutput"
   fi
 }
