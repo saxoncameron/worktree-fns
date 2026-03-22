@@ -1,0 +1,13 @@
+# Run an animated spinner in the background. Writes directly to /dev/tty so it
+# works even when the caller captures stdout. Kills itself when the given pid
+# exits. Usage: _gw_spinner <label> & — then kill $! when done.
+_gw_spinner() {
+  local label=$1
+  local frames=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
+  local i=1
+  while true; do
+    print -rn -- "\r${label} ${frames[i]}" >>/dev/tty
+    (( i = i % ${#frames[@]} + 1 ))
+    sleep 0.08
+  done
+}
