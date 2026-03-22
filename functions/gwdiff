@@ -10,7 +10,6 @@ gwdiff() {
 
   if (( !hasArg )); then
     print -u2 "Usage: gwdiff <worktree>"
-    print -u2 ""
     gwls >&2
     return 1
   fi
