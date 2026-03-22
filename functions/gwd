@@ -5,6 +5,7 @@
 # override). If deletion fails for any reason, this prints the same structured
 # diagnostic view exposed by "gwdiff" so the reason is immediately visible.
 gwd() {
+  setopt local_options no_monitor
   local arg currentDir gitCommonDir hasForce=0 mainHead removeOutput repoRoot
   local shouldCdBack=0 unmergedOutput worktreeDir
 
