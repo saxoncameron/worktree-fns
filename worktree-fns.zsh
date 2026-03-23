@@ -13,7 +13,7 @@ fpath=(
 )
 
 # Autoload the public commands.
-autoload -Uz gwa gwcd gwd gwdf gwdiff gwls gwp gwr
+autoload -Uz gwa gwcd gwd gwdf gwdiff gwls gwm gwp gwr
 
 # Autoload shared helpers so command files can call them on demand.
 autoload -Uz \
@@ -26,4 +26,4 @@ autoload -Uz \
 
 # Register one completion function for every command that expects a worktree
 # name. The guard keeps sourcing safe even if compinit has not run yet.
-(( $+functions[compdef] )) && compdef _gw_worktree_names gwcd gwd gwdf gwdiff
+(( $+functions[compdef] )) && compdef _gw_worktree_names gwcd gwd gwdf gwdiff gwm

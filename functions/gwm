@@ -1,0 +1,34 @@
+# Merge a worktree's branch back into the repo root and clean up.
+#
+# Resolves the worktree, merges its branch into whatever the repo root has
+# checked out, then removes the worktree via "gwd". If the merge produces
+# conflicts the merge is aborted, a red error is printed, and "gwdiff" is
+# shown so the user can see what was in flight.
+gwm() {
+  local branchName gitCommonDir repoRoot worktreeDir
+
+  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  repoRoot=${gitCommonDir:h}
+  worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
+
+  [[ -n "$worktreeDir" ]] || { print -u2 "Usage: gwm <worktree>"; gwls >&2; return 1 }
+
+  branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null) || {
+    print -P "%F{red}error: worktree is in detached HEAD state%f"
+    return 1
+  }
+
+  local mergeOutput mergeStatus
+  mergeOutput=$(git -C "$repoRoot" merge "$branchName" 2>&1)
+  mergeStatus=$?
+
+  if (( mergeStatus )); then
+    git -C "$repoRoot" merge --abort 2>/dev/null
+    print -P "%F{red}error: merge conflict — aborting%f"
+    print -r -- "$mergeOutput"
+    gwdiff "${worktreeDir:t}"
+    return 1
+  fi
+
+  gwd "${worktreeDir:t}"
+}
