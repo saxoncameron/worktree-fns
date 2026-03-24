@@ -1,0 +1,66 @@
+# Hand off a worktree: remove it but keep its branch and commits in the repo.
+#
+# If a worktree name is given, use it; otherwise detect the current worktree
+# by crawling upward for a .worktrees/ parent. Errors if the worktree has
+# uncommitted changes.
+gwh() {
+  local currentDir gitCommonDir repoRoot worktreeDir worktreeName
+
+  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  repoRoot=${gitCommonDir:h}
+  currentDir=${PWD:A}
+
+  if (( $# )); then
+    worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
+  else
+    # Detect worktree from cwd by finding a .worktrees/ ancestor segment
+    if [[ $currentDir == "$repoRoot/.worktrees/"* ]]; then
+      worktreeName=${currentDir#"$repoRoot/.worktrees/"}
+      worktreeName=${worktreeName%%/*}
+      worktreeDir="$repoRoot/.worktrees/$worktreeName"
+    else
+      print -P "%F{red}error: not inside a worktree — pass a worktree name%f"
+      gwls >&2
+      return 1
+    fi
+  fi
+
+  [[ -n "$worktreeDir" && -d "$worktreeDir" ]] || {
+    print -P "%F{red}error: could not resolve worktree%f"
+    gwls >&2
+    return 1
+  }
+
+  # Check for uncommitted changes
+  local statusOutput
+  statusOutput=$(git -C "$worktreeDir" status --porcelain 2>/dev/null)
+  if [[ -n "$statusOutput" ]]; then
+    print -P "%F{red}error: worktree has uncommitted changes%f"
+    print -r -- "$statusOutput"
+    return 1
+  fi
+
+  local branchName
+  branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null) || {
+    print -P "%F{red}error: worktree is in detached HEAD state%f"
+    return 1
+  }
+
+  # If we're inside the worktree, cd back to repo root first
+  local shouldCdBack=0
+  [[ $currentDir == "$worktreeDir" || $currentDir == "$worktreeDir/"* ]] && shouldCdBack=1
+
+  local removeOutput removeStatus
+  removeOutput=$(git worktree remove "$worktreeDir" 2>&1)
+  removeStatus=$?
+
+  if (( removeStatus )); then
+    print -P "%F{red}error: failed to remove worktree%f"
+    print -r -- "$removeOutput"
+    return 1
+  fi
+
+  print -P "Handed off %F{cyan}${branchName}%f — branch preserved, worktree removed"
+  (( shouldCdBack )) && gwp
+  return 0
+}
