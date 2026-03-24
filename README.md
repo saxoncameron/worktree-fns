@@ -35,6 +35,7 @@ gwp
 gwr
 
 # (d)elete speified worktree (print diff if delete fails)
+# blocks on unmerged commits unless forced
 # also deletes the same-named branch created for that worktree
 gwd <name-or-path>
 
@@ -43,6 +44,12 @@ gwdf <name-or-path>
 
 # log worktree diff
 gwdiff <name-or-path>
+
+# (h)and off a worktree: remove it but keep its branch
+gwh <name-or-path>
+
+# (m)erge a worktree branch into the repo root, then clean up
+gwm <name-or-path>
 ```
 
 ## Other features
@@ -56,6 +63,8 @@ repo's `.worktrees` directory. That means you can use tab-completion with:
 - `gwd`
 - `gwdf`
 - `gwdiff`
+- `gwh`
+- `gwm`
 
 
 ### Local files copied into new worktrees
