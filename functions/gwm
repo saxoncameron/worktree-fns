@@ -5,11 +5,10 @@
 # If the merge produces conflicts the merge is aborted, a red error is
 # printed, and "gwdiff" is shown so the user can see what was in flight.
 gwm() {
-  local currentDir gitCommonDir repoRoot worktreeDir worktreeName
+  local currentDir repoRoot worktreeDir worktreeName
   local branchName
 
-  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
-  repoRoot=${gitCommonDir:h}
+  repoRoot=$(_gw_find_repo_root) || return 1
   currentDir=${PWD:A}
 
   if (( $# )); then

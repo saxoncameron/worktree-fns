@@ -6,11 +6,10 @@
 # diagnostic view exposed by "gwdiff" so the reason is immediately visible.
 gwd() {
   setopt local_options no_monitor
-  local arg branchName branchDeleteOutput currentDir gitCommonDir hasForce=0 mainHead removeOutput repoRoot
+  local arg branchName branchDeleteOutput currentDir hasForce=0 mainHead removeOutput repoRoot
   local shouldCdBack=0 unmergedOutput worktreeDir
 
-  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
-  repoRoot=${gitCommonDir:h}
+  repoRoot=$(_gw_find_repo_root) || return 1
   currentDir=${PWD:A}
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 

@@ -4,10 +4,9 @@
 # by crawling upward for a .worktrees/ parent. Errors if the worktree has
 # uncommitted changes.
 gwh() {
-  local currentDir gitCommonDir repoRoot worktreeDir worktreeName
+  local currentDir repoRoot worktreeDir worktreeName
 
-  gitCommonDir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
-  repoRoot=${gitCommonDir:h}
+  repoRoot=$(_gw_find_repo_root) || return 1
   currentDir=${PWD:A}
 
   if (( $# )); then

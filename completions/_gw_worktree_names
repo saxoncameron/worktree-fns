@@ -1,3 +1,5 @@
+#compdef gwcd gwd gwdf gwdiff gwh gwm
+
 # Complete worktree names from the nearest repo's .worktrees directory.
 #
 # This completion function is shared by every command that expects a worktree

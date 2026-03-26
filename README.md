@@ -46,7 +46,7 @@ gwdf <name-or-path>
 gwdiff <name-or-path>
 
 # (h)and off a worktree: remove it but keep its branch
-gwh <name-or-path>
+gwh [<name-or-path>]
 
 # (m)erge a worktree branch into the repo root, then clean up
 gwm [<name-or-path>]
