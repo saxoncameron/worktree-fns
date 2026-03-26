@@ -5,41 +5,35 @@
 # builtins — avoids pipelines / process substitution into loops where
 # autoloaded functions and PATH can behave unexpectedly.
 gwls() {
-  local worktreeInfo=$(git worktree list --porcelain)
-  worktreeInfo+=$'\n'
+  local repo_root listedWorktreePath worktreePath branch indicator short commits shortstat insertions deletions
+  local -a entries worktreeDirs
 
-  local repo_root=$(_gw_find_repo_root)
-  local entries=()
-  local line path branch
-  while IFS= read -r line; do
-    if [[ "$line" == worktree\ * ]]; then
-      path="${line#worktree }"
-    elif [[ "$line" == branch\ * ]]; then
-      branch="${line#branch }"
-    elif [[ -z "$line" && -n "$path" ]]; then
-      if [[ "$path" == "$repo_root" ]]; then
-        path="" branch=""
-        continue
+  repo_root=$(_gw_find_repo_root) || return 1
+  _gw_prune_stale_worktrees "$repo_root"
+  while IFS= read -r listedWorktreePath; do
+    [[ -n "$listedWorktreePath" ]] && worktreeDirs+=("$listedWorktreePath")
+  done <<< "$(_gw_worktree_dirs "$repo_root")"
+
+  for worktreePath in "${worktreeDirs[@]}"; do
+    branch=$(git -C "$worktreePath" symbolic-ref --quiet HEAD 2>/dev/null)
+    indicator=""
+
+    if [[ -n "$branch" && "$branch" != "refs/heads/main" ]]; then
+      short=${branch##refs/heads/}
+      commits=$(git -C "$repo_root" rev-list --count "main..$short" 2>/dev/null)
+
+      if [[ "$commits" -gt 0 ]]; then
+        shortstat=$(git -C "$repo_root" diff "main...$short" --shortstat 2>/dev/null)
+        insertions=0
+        deletions=0
+        [[ "$shortstat" =~ '([0-9]+) insertion' ]] && insertions=$match[1]
+        [[ "$shortstat" =~ '([0-9]+) deletion' ]] && deletions=$match[1]
+        indicator=" %F{green}(+${insertions}/-${deletions} lines, ${commits} commits)%f"
       fi
-      local name="${path##*/}" indicator=""
-
-      if [[ -n "$branch" && "$branch" != "refs/heads/main" ]]; then
-        local short="${branch##refs/heads/}"
-        local commits=$(git rev-list --count "main..$short" 2>/dev/null)
-
-        if [[ "$commits" -gt 0 ]]; then
-          local shortstat=$(git diff "main...$short" --shortstat 2>/dev/null)
-          local insertions=0 deletions=0
-          [[ "$shortstat" =~ '([0-9]+) insertion' ]] && insertions=$match[1]
-          [[ "$shortstat" =~ '([0-9]+) deletion' ]] && deletions=$match[1]
-          indicator=" %F{green}(+${insertions}/-${deletions} lines, ${commits} commits)%f"
-        fi
-      fi
-
-      entries+=("  • $name$indicator")
-      path="" branch=""
     fi
-  done <<< "$worktreeInfo"
+
+    entries+=("  • ${worktreePath:t}$indicator")
+  done
 
   print ""
   if (( ${#entries} == 0 )); then
