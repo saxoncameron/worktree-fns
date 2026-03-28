@@ -5,8 +5,6 @@
 # This completion function is shared by every command that expects a worktree
 # identifier, which keeps the command files themselves focused on behavior.
 _gw_worktree_names() {
-  (( CURRENT > 2 )) && return 1
-
   local repoRoot worktreeDir
   local -a worktreeDirs worktreeNames
 
@@ -17,6 +15,5 @@ _gw_worktree_names() {
   worktreeNames=("${worktreeDirs:t}")
 
   (( ${#worktreeNames} )) || return 1
-  local expl
-  _wanted worktrees expl 'worktree' compadd -a worktreeNames
+  _arguments '1:worktree:compadd -a worktreeNames'
 }
