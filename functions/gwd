@@ -28,8 +28,8 @@ gwd() {
     fi
   fi
 
-  local removeStatus
-  print "Deleting worktree..."
+  local removeStatus worktreeName="${worktreeDir:t}"
+  print -P "%F{cyan}Removing worktree%f %F{yellow}$worktreeName%f"
   removeOutput=$(git worktree remove "$@" 2>&1)
   removeStatus=$?
 
@@ -39,14 +39,15 @@ gwd() {
     return 1
   fi
 
-  if [[ -n "$branchName" && -n "$worktreeDir" && "$branchName" == "${worktreeDir:t}" ]]; then
+  if [[ -n "$branchName" && -n "$worktreeDir" && "$branchName" == "$worktreeName" ]]; then
+    print -P "%F{cyan}Deleting branch%f %F{yellow}$branchName%f"
     branchDeleteOutput=$(git -C "$repoRoot" branch -D -- "$branchName" 2>&1) || {
       print -r -- "$branchDeleteOutput"
       return 1
     }
   fi
 
-  print "Done"
+  print -P "%F{green}Done%f"
   (( shouldCdBack )) && gwp
   return 0
 }

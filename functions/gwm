@@ -36,7 +36,11 @@ gwm() {
     return 1
   }
 
-  local mergeOutput mergeStatus
+  local targetBranch mergeOutput mergeStatus
+  targetBranch=$(git -C "$repoRoot" symbolic-ref --quiet --short HEAD 2>/dev/null)
+
+  print -P "%F{cyan}Merging%f %F{yellow}$branchName%f → %F{green}$targetBranch%f"
+
   mergeOutput=$(git -C "$repoRoot" merge "$branchName" 2>&1)
   mergeStatus=$?
 
@@ -48,5 +52,6 @@ gwm() {
     return 1
   fi
 
+  print -P "%F{green}Merged successfully%f"
   gwd "${worktreeDir:t}"
 }
