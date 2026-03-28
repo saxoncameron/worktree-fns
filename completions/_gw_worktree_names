@@ -15,5 +15,5 @@ _gw_worktree_names() {
   worktreeNames=("${worktreeDirs:t}")
 
   (( ${#worktreeNames} )) || return 1
-  _describe 'worktree' worktreeNames
+  _arguments "1:worktree:(${(j: :)worktreeNames})"
 }
