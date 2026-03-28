@@ -8,7 +8,8 @@ _gw_worktree_dirs() {
 
   [[ -d "$repoRoot/.worktrees" ]] || return 0
   for worktreeDir in "$repoRoot"/.worktrees/*(/N); do
-    gitCommonDir=$(git -C "$worktreeDir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || continue
+    [[ -f "$worktreeDir/.git" ]] || continue
+    gitCommonDir=$(GIT_DIR= GIT_WORK_TREE= git -C "$worktreeDir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || continue
     [[ "$gitCommonDir" == "$repoRoot/.git" ]] || continue
     print -r -- "$worktreeDir"
   done
