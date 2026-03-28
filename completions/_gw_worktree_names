@@ -15,5 +15,6 @@ _gw_worktree_names() {
   worktreeNames=("${worktreeDirs:t}")
 
   (( ${#worktreeNames} )) || return 1
-  compadd -- "${worktreeNames[@]}"
+  local expl
+  _wanted worktrees expl 'worktree' compadd -a worktreeNames
 }
