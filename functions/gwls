@@ -15,7 +15,7 @@ gwls() {
     repo_root=${common_dir%/.git}
     [[ -d "$repo_root/.worktrees" ]] || return 1
   }
-  _gw_prune_stale_worktrees "$repo_root"
+  git -C "$repo_root" worktree prune >/dev/null 2>&1
   while IFS= read -r listedWorktreePath; do
     [[ -n "$listedWorktreePath" ]] && worktreeDirs+=("$listedWorktreePath")
   done <<< "$(_gw_worktree_dirs "$repo_root")"
