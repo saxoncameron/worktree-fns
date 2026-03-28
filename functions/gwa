@@ -7,6 +7,7 @@
 # into it. That preserves untracked .env files and nested .gitignore files that
 # often matter in day-to-day development but are not part of the checkout.
 gwa() {
+  gwp 2>/dev/null
   local constWorktree repoRoot worktreeRoot
   constWorktree="./.worktrees/$1"
   repoRoot=$(git rev-parse --show-toplevel) || return 1
