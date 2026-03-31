@@ -20,5 +20,14 @@ _gw_worktree_names() {
   done
 
   (( ${#names} )) || return 1
+
+  # Only complete the first non-flag argument — prevent appending extra names
+  # after one has already been accepted.
+  local w nonflag=0
+  for w in "${words[@]:1:$((CURRENT-2))}"; do
+    [[ $w != -* ]] && (( ++nonflag ))
+  done
+  (( nonflag )) && return 0
+
   _describe 'worktree' names
 }
