@@ -7,18 +7,32 @@
 # into it. That preserves untracked .env files and nested .gitignore files that
 # often matter in day-to-day development but are not part of the checkout.
 gwa() {
+  [[ -n "$1" ]] || {
+    _gw_log error 'Usage: gwa <name> [branch]'
+    return 1
+  }
+
   gwp 2>/dev/null
   local constWorktree repoRoot worktreeRoot
   constWorktree="./.worktrees/$1"
   repoRoot=$(git rev-parse --show-toplevel) || return 1
   worktreeRoot="$repoRoot/.worktrees/$1"
 
+  _gw_log step "Creating worktree %F{yellow}${1}%f"
+
   if [[ -n "$2" ]]; then
-    git worktree add "$constWorktree" "$2" || return 1
+    git worktree add "$constWorktree" "$2" || {
+      _gw_log error "Failed to create worktree %F{yellow}${1}%f"
+      return 1
+    }
   else
-    git worktree add "$constWorktree" || return 1
+    git worktree add "$constWorktree" || {
+      _gw_log error "Failed to create worktree %F{yellow}${1}%f"
+      return 1
+    }
   fi
 
   _gw_copy_local_overlay_files "$repoRoot" "$worktreeRoot"
+  _gw_log success "Entered worktree %F{yellow}${1}%f"
   builtin cd "$constWorktree"
 }

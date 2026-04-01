@@ -6,7 +6,8 @@ test_gwa_creates_worktree_and_copies_overlays() {
   local repoDir worktreeDir
   repoDir=$(gw_test_make_repo) || return 1
   builtin cd "$repoDir" || return 1
-  gwa feature >/dev/null 2>&1 || return 1
+  gw_test_capture gwa feature
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwa should succeed'
   worktreeDir="$repoDir/.worktrees/feature"
 
   [[ -d "$worktreeDir" ]] || return $(gw_test_record_failure 'gwa should create the requested worktree directory')
@@ -14,6 +15,9 @@ test_gwa_creates_worktree_and_copies_overlays() {
   gw_test_assert_equal 'feature' "$(gw_test_worktree_branch "$worktreeDir")" 'gwa should create a matching branch'
   gw_test_assert_equal 'ENV=development' "$(<"$worktreeDir/.env")" 'gwa should copy .env into new worktrees'
   gw_test_assert_equal '*.cache' "$(<"$worktreeDir/config/.gitignore")" 'gwa should copy nested gitignore files into new worktrees'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwa should log with the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Creating worktree' 'gwa should log creation'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Entered worktree' 'gwa should log success'
 }
 
 test_gwcd_gwp_and_gwr_change_directories() {
@@ -24,17 +28,24 @@ test_gwcd_gwp_and_gwr_change_directories() {
   worktreeDir="$repoDir/.worktrees/feature"
 
   builtin cd "$repoDir" || return 1
-  gwcd feature || return 1
+  gw_test_capture gwcd feature
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwcd should succeed'
   gw_test_assert_equal "$worktreeDir" "$PWD" 'gwcd should jump into named worktrees'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwcd should log with the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Entered worktree' 'gwcd should log success'
 
   mkdir -p "$worktreeDir/src/nested" || return 1
   builtin cd "$worktreeDir/src/nested" || return 1
-  gwr || return 1
+  gw_test_capture gwr
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwr should succeed'
   gw_test_assert_equal "$worktreeDir" "$PWD" 'gwr should jump to the current worktree root'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to worktree root' 'gwr should log navigation'
 
   builtin cd "$worktreeDir/src/nested" || return 1
-  gwp || return 1
+  gw_test_capture gwp
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwp should succeed'
   gw_test_assert_equal "$repoDir" "$PWD" 'gwp should jump to the owning repo root'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to repo root' 'gwp should log navigation'
 }
 
 test_gwls_reports_empty_and_populated_states() {
@@ -45,6 +56,7 @@ test_gwls_reports_empty_and_populated_states() {
   gw_test_capture gwls
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwls should succeed with no worktrees'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'No worktrees found.' 'gwls should report empty state'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwls should use the project emoji'
 
   gwa feature >/dev/null 2>&1 || return 1
   gw_test_capture gwls
@@ -66,6 +78,8 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
 
   gw_test_capture gwdiff feature
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwdiff should succeed on clean worktrees'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwdiff should use the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Inspecting worktree' 'gwdiff should log what it is inspecting'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has no pending changes:' 'gwdiff should report clean worktrees'
 
   print -r -- 'dirty change' >> "$worktreeDir/base.txt"

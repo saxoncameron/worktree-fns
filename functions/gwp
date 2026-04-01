@@ -10,5 +10,6 @@ gwp() {
     common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
     repoRoot=${common_dir%/.git}
   }
+  _gw_log success "Returned to repo root %F{yellow}${repoRoot:t}%f"
   builtin cd "$repoRoot"
 }

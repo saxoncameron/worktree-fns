@@ -17,6 +17,12 @@ gwdiff() {
   repoRoot=$(_gw_find_repo_root) || return 1
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
-  [[ -n "$worktreeDir" ]] || return 1
+  [[ -n "$worktreeDir" ]] || {
+    _gw_log error 'error: could not resolve worktree'
+    gwls >&2
+    return 1
+  }
+
+  _gw_log info "Inspecting worktree %F{yellow}${worktreeDir:t}%f"
   _gw_print_worktree_diff "$worktreeDir"
 }

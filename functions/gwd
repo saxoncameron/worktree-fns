@@ -14,6 +14,11 @@ gwd() {
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
   for arg in "$@"; do [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1; done
+  [[ -n "$worktreeDir" ]] || {
+    _gw_log error 'Usage: gwd <name-or-path>'
+    gwls >&2
+    return 1
+  }
 
   [[ $currentDir == "$repoRoot/.worktrees" || $currentDir == "$repoRoot/.worktrees/"* ]] && shouldCdBack=1
   [[ -n "$worktreeDir" ]] && branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null)
@@ -29,7 +34,11 @@ gwd() {
   fi
 
   local removeStatus worktreeName="${worktreeDir:t}"
-  _gw_log step "Removing worktree %F{yellow}${worktreeName}%f"
+  if (( hasForce )); then
+    _gw_log warn "Force-removing worktree %F{yellow}${worktreeName}%f"
+  else
+    _gw_log step "Removing worktree %F{yellow}${worktreeName}%f"
+  fi
   removeOutput=$(git worktree remove "$@" 2>&1)
   removeStatus=$?
 

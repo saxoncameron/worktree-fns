@@ -6,5 +6,6 @@
 gwr() {
   local worktreeRoot
   worktreeRoot=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  _gw_log success "Returned to worktree root %F{yellow}${worktreeRoot:t}%f"
   builtin cd "$worktreeRoot"
 }

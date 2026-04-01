@@ -50,6 +50,7 @@ gwh() {
   [[ $currentDir == "$worktreeDir" || $currentDir == "$worktreeDir/"* ]] && shouldCdBack=1
 
   local removeOutput removeStatus
+  _gw_log step "Handing off worktree %F{yellow}${worktreeDir:t}%f"
   removeOutput=$(git worktree remove "$worktreeDir" 2>&1)
   removeStatus=$?
 

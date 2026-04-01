@@ -4,10 +4,21 @@
 # full path, because the standardized ./.worktrees/<name> layout makes that
 # unambiguous.
 gwcd() {
+  [[ -n "$1" ]] || {
+    _gw_log error 'Usage: gwcd <worktree>'
+    return 1
+  }
+
   local repoRoot worktreeDir
   repoRoot=$(_gw_find_repo_root) || return 1
   worktreeDir="$repoRoot/.worktrees/$1"
 
-  [[ -d "$worktreeDir" ]] || return 1
+  [[ -d "$worktreeDir" ]] || {
+    _gw_log error 'error: could not resolve worktree'
+    gwls >&2
+    return 1
+  }
+
+  _gw_log success "Entered worktree %F{yellow}${worktreeDir:t}%f"
   builtin cd "$worktreeDir"
 }
