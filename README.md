@@ -1,58 +1,82 @@
 # worktree-fns
 
-`~/.zshrc` helper functions for efficient git worktrees.
+Installable git worktree helpers for zsh.
+
+You get both:
+
+- a standalone `worktree-fns` CLI
+- shell wrappers like `gwa`, `gwcd`, `gwd`, and `gwm` for workflows that need
+  to change the current shell directory
 
 ## Installation
 
-Clone the repo, then:
+### Install to your local prefix
 
 ```sh
-# Point your `~/.zshrc` at it:
+make install PREFIX="$HOME/.local"
+```
+
+Then add the binary and shell integration to `~/.zshrc`:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(worktree-fns init zsh)"
+```
+
+For local development without installing:
+
+```sh
 source ~/Sites/personal/worktree-fns/worktree-fns.zsh
 ```
 
-Optional: add `.worktrees/*` directory to your `.gitignore`. Worktrees are managed here; ignoring them in the git index makes for a seamless experience.
+Optional: add `.worktrees/*` to your repo `.gitignore`. Worktrees are managed
+there, so ignoring the directory in the main checkout keeps the index clean.
 
 ## Usage
 
-You can now use these in your CLI:
+### Shell wrappers
+
+Once sourced, you can use the short `gw*` commands directly:
 
 ```sh
-# list current worktrees
 gwls
 
-# (a)dd new worktree in `.worktrees/`, then cd into it
-# (branch name optional)
 gwa <name> [branch]
 
-# cd into specified worktree
 gwcd <name>
 
-# cd back to (p)roject
 gwp
 
-# cd back to worktree (r)oot
 gwr
-
-# (d)elete speified worktree (print diff if delete fails)
-# blocks on unmerged commits unless forced
-# also deletes the same-named branch created for that worktree
 gwd <name-or-path>
-
-# delete --force (if changes detected)
 gwdf <name-or-path>
-
-# log worktree diff
 gwdiff <name-or-path>
-
-# (h)and off a worktree: remove it but keep its branch
 gwh [<name-or-path>]
-
-# (m)erge a worktree branch into the repo root, then clean up
 gwm [<name-or-path>]
 ```
 
-## Other features
+### Standalone CLI
+
+The binary exposes the same behavior as subcommands:
+
+```sh
+worktree-fns list
+worktree-fns add <name> [branch]
+worktree-fns cd <name>
+worktree-fns delete <name-or-path>
+worktree-fns force-delete <name-or-path>
+worktree-fns diff <name-or-path>
+worktree-fns handoff [<name-or-path>]
+worktree-fns merge [<name-or-path>]
+worktree-fns project-root
+worktree-fns worktree-root
+```
+
+Path-oriented commands like `add`, `cd`, `project-root`, and `worktree-root`
+print absolute paths when run through the standalone binary. The sourced shell
+wrappers consume those paths and `cd` for you.
+
+## Features
 
 ### Worktree name completion
 
@@ -66,7 +90,6 @@ repo's `.worktrees` directory. That means you can use tab-completion with:
 - `gwh`
 - `gwm`
 
-
 ### Local files copied into new worktrees
 
 `git worktree add` only checks out tracked files. To make fresh worktrees more
@@ -78,3 +101,18 @@ from the new worktree:
 
 This helps with common local-only setup, including nested ignore rules that
 prevent generated files from showing up as false-positive changes.
+
+### Styled logging
+
+Interactive commands use emoji + colored status lines by default. For
+machine-friendlier output, set:
+
+```sh
+GW_LOG_STYLE=plain
+```
+
+## Development
+
+```sh
+make test
+```
