@@ -48,6 +48,20 @@ test_gwcd_gwp_and_gwt_change_directories() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to repo root' 'gwp should log navigation'
 }
 
+test_gwt_logs_info_when_no_worktree_root_exists() {
+  local emptyDir
+  emptyDir=$(mktemp -d "${TMPDIR:-/tmp}/worktree-fns-empty.XXXXXX") || return 1
+  emptyDir=${emptyDir:A}
+  GW_TEST_TMP_PATHS+=("$emptyDir")
+
+  builtin cd "$emptyDir" || return 1
+  gw_test_capture gwt
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwt should succeed outside a worktree'
+  gw_test_assert_equal "$emptyDir" "$PWD" 'gwt should leave the current directory unchanged outside a worktree'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info]' 'gwt should log the no-worktree case as info'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'No worktree root to return to.' 'gwt should explain the no-worktree case'
+}
+
 test_gwls_reports_empty_and_populated_states() {
   local repoDir
   repoDir=$(gw_test_make_repo) || return 1
@@ -118,6 +132,7 @@ test_gwh_preserves_branch_and_rejects_dirty_worktrees() {
 
 gw_test_run 'gwa creates worktrees and copies overlays' test_gwa_creates_worktree_and_copies_overlays
 gw_test_run 'gwcd, gwp, and gwt change directories correctly' test_gwcd_gwp_and_gwt_change_directories
+gw_test_run 'gwt logs info when no worktree root exists' test_gwt_logs_info_when_no_worktree_root_exists
 gw_test_run 'gwls reports empty and populated states' test_gwls_reports_empty_and_populated_states
 gw_test_run 'gwdiff reports usage, clean, and dirty states' test_gwdiff_reports_usage_clean_and_dirty_states
 gw_test_run 'gwh preserves branches and rejects dirty worktrees' test_gwh_preserves_branch_and_rejects_dirty_worktrees
