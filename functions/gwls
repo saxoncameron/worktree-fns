@@ -38,7 +38,7 @@ gwls() {
       fi
     fi
 
-    entries+=("  %F{magenta}🌱%f %F{yellow}${worktreePath:t}%f$indicator")
+    entries+=("  - %F{yellow}${worktreePath:t}%f$indicator")
   done
 
   print ""

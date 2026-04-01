@@ -21,14 +21,15 @@ test_log_supports_plain_mode() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [error] Plain log message' '_gw_log should emit the project emoji and plain labels when requested'
 }
 
-test_gwls_uses_visual_worktree_markers() {
+test_gwls_uses_dash_worktree_markers() {
   local repoDir
   repoDir=$(gw_test_make_repo) || return 1
   builtin cd "$repoDir" || return 1
   gwa feature >/dev/null 2>&1 || return 1
 
   gw_test_capture gwls
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwls should render worktree markers with the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [list]' 'gwls should keep the project emoji in the list heading'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '  - ' 'gwls should render worktree entries with dash bullets'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Available worktrees:' 'gwls should keep the list heading text'
 }
 
@@ -48,5 +49,5 @@ test_gwr_logs_force_removal_with_project_prefix() {
 
 gw_test_run '_gw_log emits emoji by default' test_log_outputs_emoji_by_default
 gw_test_run '_gw_log supports plain mode' test_log_supports_plain_mode
-gw_test_run 'gwls uses visual worktree markers' test_gwls_uses_visual_worktree_markers
+gw_test_run 'gwls uses dash worktree markers' test_gwls_uses_dash_worktree_markers
 gw_test_run 'gwrf logs force removal with the project emoji' test_gwr_logs_force_removal_with_project_prefix
