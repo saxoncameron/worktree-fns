@@ -29,7 +29,7 @@ gwd() {
     mainHead=$(git -C "$repoRoot" rev-parse HEAD 2>/dev/null)
     [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
     if [[ -n "$unmergedOutput" ]]; then
-      print "error: worktree has unmerged commits"
+      _gw_log error 'error: worktree has unmerged commits'
       _gw_print_worktree_diff "$worktreeDir"
       return 1
     fi
@@ -40,25 +40,27 @@ gwd() {
   removeArgs+=(-- "$worktreeDir")
 
   local removeStatus
-  print -P "%F{cyan}Removing worktree%f %F{yellow}$worktreeName%f"
+  _gw_log step "Removing worktree %F{yellow}${worktreeName}%f"
   removeOutput=$(git -C "$repoRoot" worktree remove "${removeArgs[@]}" 2>&1)
   removeStatus=$?
 
   if (( removeStatus )); then
+    _gw_log error 'Failed to remove worktree.'
     print -r -- "$removeOutput"
     _gw_print_worktree_diff "$worktreeDir"
     return 1
   fi
 
   if [[ -n "$branchName" && "$branchName" == "$worktreeName" ]]; then
-    print -P "%F{cyan}Deleting branch%f %F{yellow}$branchName%f"
+    _gw_log step "Deleting branch %F{yellow}${branchName}%f"
     branchDeleteOutput=$(git -C "$repoRoot" branch -D -- "$branchName" 2>&1) || {
+      _gw_log error 'Failed to delete branch.'
       print -r -- "$branchDeleteOutput"
       return 1
     }
   fi
 
-  print -P "%F{green}Done%f"
+  _gw_log success "Removed %F{yellow}${worktreeName}%f"
   (( shouldCdBack )) && gwp
   return 0
 }

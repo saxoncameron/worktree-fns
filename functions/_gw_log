@@ -1,0 +1,59 @@
+# Print a styled status line for interactive use.
+#
+# Defaults to colored emoji prefixes, with a plain fallback for tests or
+# machine-friendly output via GW_LOG_STYLE=plain / NO_COLOR / GW_NO_EMOJI=1.
+_gw_log() {
+  local color emoji label message prefix
+  label=$1
+  shift
+  message="$*"
+
+  case "$label" in
+    info)
+      color='cyan'
+      emoji='ℹ️'
+      ;;
+    success)
+      color='green'
+      emoji='✅'
+      ;;
+    warn)
+      color='yellow'
+      emoji='⚠️'
+      ;;
+    error)
+      color='red'
+      emoji='❌'
+      ;;
+    step)
+      color='blue'
+      emoji='🛠️'
+      ;;
+    list)
+      color='magenta'
+      emoji='🌿'
+      ;;
+    *)
+      color='white'
+      emoji='•'
+      ;;
+  esac
+
+  if [[ ${GW_LOG_STYLE:-styled} == 'plain' ]]; then
+    print -r -- "[$label] $message"
+    return 0
+  fi
+
+  if [[ -n ${GW_NO_EMOJI:-} ]]; then
+    prefix="[$label]"
+  else
+    prefix=$emoji
+  fi
+
+  if [[ -n ${NO_COLOR:-} ]]; then
+    print -r -- "$prefix $message"
+    return 0
+  fi
+
+  print -P "%F{$color}${prefix}%f $message"
+}

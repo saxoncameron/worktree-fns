@@ -38,14 +38,14 @@ gwls() {
       fi
     fi
 
-    entries+=("  • ${worktreePath:t}$indicator")
+    entries+=("  %F{magenta}🌿%f %F{yellow}${worktreePath:t}%f$indicator")
   done
 
   print ""
   if (( ${#entries} == 0 )); then
-    print -P "No worktrees found. Use %F{cyan}gwa%f to add one."
+    _gw_log info "No worktrees found. Use %F{cyan}gwa%f to add one."
   else
-    print "Available worktrees:"
+    _gw_log list 'Available worktrees:'
     for entry in "${entries[@]}"; do print -P "$entry"; done
   fi
 }

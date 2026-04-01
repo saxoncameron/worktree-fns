@@ -21,24 +21,24 @@ _gw_print_worktree_diff() {
 
   echo
   if [[ -z "$unstagedOutput" && -z "$unmergedOutput" ]]; then
-    print -P "%F{green}Worktree has no pending changes:%f ${worktreeDir:t}"
+    _gw_log success "Worktree has no pending changes: %F{yellow}${worktreeDir:t}%f"
     return 0
   fi
-  print -P "%F{yellow}Worktree has pending changes:%f ${worktreeDir:t}"
+  _gw_log warn "Worktree has pending changes: %F{yellow}${worktreeDir:t}%f"
 
   if [[ -n "$unstagedOutput" ]]; then
     local summaryLine fileLines
     summaryLine=${unstagedOutput##*$'\n'}
     fileLines=${unstagedOutput%$'\n'*}
     echo
-    print -P "%F{red}Unstaged changes:%f"
+    _gw_log error 'Unstaged changes:'
     print -r -- "$summaryLine"
     print -r -- "$fileLines"
   fi
 
   if [[ -n "$unmergedOutput" ]]; then
     echo
-    print -P "%F{cyan}Unmerged commits:%f"
+    _gw_log info 'Unmerged commits:'
     print -r -- "$unmergedOutput"
   fi
 }

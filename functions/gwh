@@ -18,14 +18,14 @@ gwh() {
       worktreeName=${worktreeName%%/*}
       worktreeDir="$repoRoot/.worktrees/$worktreeName"
     else
-      print -P "%F{red}error: not inside a worktree — pass a worktree name%f"
+      _gw_log error 'error: not inside a worktree; pass a worktree name'
       gwls >&2
       return 1
     fi
   fi
 
   [[ -n "$worktreeDir" && -d "$worktreeDir" ]] || {
-    print -P "%F{red}error: could not resolve worktree%f"
+    _gw_log error 'error: could not resolve worktree'
     gwls >&2
     return 1
   }
@@ -35,14 +35,14 @@ gwh() {
   _gw_prune_clean_overlay_files "$repoRoot" "$worktreeDir" >/dev/null 2>&1
   statusOutput=$(git -C "$worktreeDir" status --porcelain 2>/dev/null)
   if [[ -n "$statusOutput" ]]; then
-    print -P "%F{red}error: worktree has uncommitted changes%f"
+    _gw_log error 'error: worktree has uncommitted changes'
     print -r -- "$statusOutput"
     return 1
   fi
 
   local branchName
   branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null) || {
-    print -P "%F{red}error: worktree is in detached HEAD state%f"
+    _gw_log error 'error: worktree is in detached HEAD state'
     return 1
   }
 
@@ -55,12 +55,12 @@ gwh() {
   removeStatus=$?
 
   if (( removeStatus )); then
-    print -P "%F{red}error: failed to remove worktree%f"
+    _gw_log error 'error: failed to remove worktree'
     print -r -- "$removeOutput"
     return 1
   fi
 
-  print -P "Handed off %F{cyan}${branchName}%f — branch preserved, worktree removed"
+  _gw_log success "Handed off %F{cyan}${branchName}%f; branch preserved and worktree removed"
   (( shouldCdBack )) && gwp
   return 0
 }

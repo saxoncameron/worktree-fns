@@ -23,6 +23,7 @@ autoload -Uz \
   _gw_colorize_status_output \
   _gw_copy_local_overlay_files \
   _gw_find_repo_root \
+  _gw_log \
   _gw_overlay_relpaths \
   _gw_print_worktree_diff \
   _gw_prune_clean_overlay_files \

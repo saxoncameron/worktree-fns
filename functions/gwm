@@ -19,39 +19,39 @@ gwm() {
       worktreeName=${worktreeName%%/*}
       worktreeDir="$repoRoot/.worktrees/$worktreeName"
     else
-      print -P "%F{red}error: not inside a worktree — pass a worktree name%f"
+      _gw_log error 'error: not inside a worktree; pass a worktree name'
       gwls >&2
       return 1
     fi
   fi
 
   [[ -n "$worktreeDir" && -d "$worktreeDir" ]] || {
-    print -P "%F{red}error: could not resolve worktree%f"
+    _gw_log error 'error: could not resolve worktree'
     gwls >&2
     return 1
   }
 
   branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null) || {
-    print -P "%F{red}error: worktree is in detached HEAD state%f"
+    _gw_log error 'error: worktree is in detached HEAD state'
     return 1
   }
 
   local targetBranch mergeOutput mergeStatus
   targetBranch=$(git -C "$repoRoot" symbolic-ref --quiet --short HEAD 2>/dev/null)
 
-  print -P "%F{cyan}Merging%f %F{yellow}$branchName%f → %F{green}$targetBranch%f"
+  _gw_log step "Merging %F{yellow}${branchName}%f into %F{green}${targetBranch}%f"
 
   mergeOutput=$(git -C "$repoRoot" merge "$branchName" 2>&1)
   mergeStatus=$?
 
   if (( mergeStatus )); then
     git -C "$repoRoot" merge --abort 2>/dev/null
-    print -P "%F{red}error: merge conflict — aborting%f"
+    _gw_log error 'error: merge conflict; aborting'
     print -r -- "$mergeOutput"
     gwdiff "${worktreeDir:t}"
     return 1
   fi
 
-  print -P "%F{green}Merged successfully%f"
+  _gw_log success "Merged %F{yellow}${branchName}%f into %F{green}${targetBranch}%f"
   gwd "${worktreeDir:t}"
 }
