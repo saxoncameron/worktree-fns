@@ -3,12 +3,14 @@
 # These helpers standardize on the on-disk .worktrees directory as the source
 # of truth, so commands and completion stay consistent.
 _gw_worktree_dirs() {
-  local repoRoot worktreeDir gitCommonDir
+  local repoRoot worktreeDir gitCommonDir worktreeRoot
   repoRoot=$1
 
   [[ -d "$repoRoot/.worktrees" ]] || return 0
   for worktreeDir in "$repoRoot"/.worktrees/*(/N); do
+    worktreeRoot=$(unset GIT_DIR GIT_WORK_TREE; git -C "$worktreeDir" rev-parse --path-format=absolute --show-toplevel 2>/dev/null) || continue
     gitCommonDir=$(unset GIT_DIR GIT_WORK_TREE; git -C "$worktreeDir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || continue
+    [[ "$worktreeRoot" == "${worktreeDir:A}" ]] || continue
     [[ "$gitCommonDir" == "$repoRoot/.git" ]] || continue
     print -r -- "$worktreeDir"
   done
