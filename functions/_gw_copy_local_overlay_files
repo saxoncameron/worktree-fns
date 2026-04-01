@@ -8,15 +8,16 @@
 # The copy is intentionally conservative: it only fills holes in the new
 # worktree and never overwrites existing files produced by Git checkout.
 _gw_copy_local_overlay_files() {
-  local overlayTarget relPath repoRoot worktreeRoot
+  local overlaySource overlayTarget relPath repoRoot worktreeRoot
   repoRoot=$1
   worktreeRoot=$2
 
-  while IFS= read -r relPath; do
+  while IFS= read -r -d '' overlaySource; do
+    relPath=${overlaySource#$repoRoot/}
     overlayTarget="$worktreeRoot/$relPath"
 
     [[ -e "$overlayTarget" ]] && continue
     mkdir -p "${overlayTarget:h}"
-    cp "$repoRoot/$relPath" "$overlayTarget"
-  done <<< "$(_gw_overlay_relpaths "$repoRoot")"
+    cp "$overlaySource" "$overlayTarget"
+  done < <(find "$repoRoot" -path "$repoRoot/.worktrees" -prune -o -type f \( -name '.env' -o -name '.gitignore' \) -print0)
 }

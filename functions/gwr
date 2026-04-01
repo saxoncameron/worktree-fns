@@ -5,6 +5,6 @@
 # - "gwp" uses the nearest parent containing .worktrees
 gwr() {
   local worktreeRoot
-  worktreeRoot=$(_gw_worktree_root_path) || return 1
+  worktreeRoot=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
   builtin cd "$worktreeRoot"
 }

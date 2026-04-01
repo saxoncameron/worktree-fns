@@ -1,5 +1,0 @@
-#!/usr/bin/env zsh
-
-typeset -g _worktree_fns_root=${${0:A}:h:h}
-source "$_worktree_fns_root/worktree-fns.zsh"
-_gw_cli_dispatch "$@"

@@ -5,6 +5,10 @@
 # is inside a linked worktree.
 gwp() {
   local repoRoot
-  repoRoot=$(_gw_repo_root_path) || return 1
+  repoRoot=$(_gw_find_repo_root) || {
+    local common_dir
+    common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+    repoRoot=${common_dir%/.git}
+  }
   builtin cd "$repoRoot"
 }
