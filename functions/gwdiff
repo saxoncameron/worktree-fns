@@ -1,8 +1,8 @@
 # Show the current change summary for a named worktree on demand.
 #
-# This is useful both for ad hoc inspection and for explaining why a "gwd"
+# This is useful both for ad hoc inspection and for explaining why a "gwr"
 # deletion failed. Keeping it as a first-class command also makes the failure
-# path in "gwd" much easier to reason about.
+# path in "gwr" much easier to reason about.
 gwdiff() {
   local repoRoot worktreeDir hasArg=0
 

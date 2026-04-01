@@ -1,7 +1,7 @@
 # Merge a worktree's branch back into the repo root and clean up.
 #
 # Resolves the worktree from args or the current cwd, merges its branch into
-# whatever the repo root has checked out, then removes the worktree via "gwd".
+# whatever the repo root has checked out, then removes the worktree via "gwr".
 # If the merge produces conflicts the merge is aborted, a red error is
 # printed, and "gwdiff" is shown so the user can see what was in flight.
 gwm() {
@@ -53,5 +53,5 @@ gwm() {
   fi
 
   _gw_log success "Merged %F{yellow}${branchName}%f into %F{green}${targetBranch}%f"
-  gwd "${worktreeDir:t}"
+  gwr "${worktreeDir:t}"
 }

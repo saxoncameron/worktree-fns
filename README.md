@@ -31,16 +31,16 @@ gwcd <name>
 # cd back to (p)roject
 gwp
 
-# cd back to worktree (r)oot
-gwr
+# cd back to worktree root
+gwt
 
-# (d)elete speified worktree (print diff if delete fails)
+# remove specified worktree (print diff if remove fails)
 # blocks on unmerged commits unless forced
 # also deletes the same-named branch created for that worktree
-gwd <name-or-path>
+gwr <name-or-path>
 
-# delete --force (if changes detected)
-gwdf <name-or-path>
+# remove --force (if changes detected)
+gwrf <name-or-path>
 
 # log worktree diff
 gwdiff <name-or-path>
@@ -60,8 +60,8 @@ Commands that accept a worktree name use shell completion from the nearest
 repo's `.worktrees` directory. That means you can use tab-completion with:
 
 - `gwcd`
-- `gwd`
-- `gwdf`
+- `gwr`
+- `gwrf`
 - `gwdiff`
 - `gwh`
 - `gwm`

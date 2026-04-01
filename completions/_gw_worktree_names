@@ -1,4 +1,4 @@
-#compdef gwcd gwd gwdf gwdiff gwh gwm
+#compdef gwcd gwr gwrf gwdiff gwh gwm
 
 # Complete worktree names from the nearest repo's .worktrees directory.
 #

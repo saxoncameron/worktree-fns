@@ -6,7 +6,7 @@
 # - absolute paths
 #
 # The "last non-option wins" behavior mirrors the previous inline function and
-# makes wrapper commands like "gwd --force feature-x" work naturally.
+# makes wrapper commands like "gwr --force feature-x" work naturally.
 _gw_resolve_worktree_dir() {
   local repoRoot resolvedPath targetArg
   repoRoot=$1

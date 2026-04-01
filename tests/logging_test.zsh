@@ -32,7 +32,7 @@ test_gwls_uses_visual_worktree_markers() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Available worktrees:' 'gwls should keep the list heading text'
 }
 
-test_gwd_logs_force_removal_with_project_prefix() {
+test_gwr_logs_force_removal_with_project_prefix() {
   local repoDir worktreeDir
   repoDir=$(gw_test_make_repo) || return 1
   builtin cd "$repoDir" || return 1
@@ -41,12 +41,12 @@ test_gwd_logs_force_removal_with_project_prefix() {
   print -r -- 'dirty change' >> "$worktreeDir/base.txt"
   builtin cd "$repoDir" || return 1
 
-  gw_test_capture gwdf feature
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwdf should use the project emoji'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Force-removing worktree' 'gwdf should log force deletion explicitly'
+  gw_test_capture gwrf feature
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwrf should use the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Force-removing worktree' 'gwrf should log force deletion explicitly'
 }
 
 gw_test_run '_gw_log emits emoji by default' test_log_outputs_emoji_by_default
 gw_test_run '_gw_log supports plain mode' test_log_supports_plain_mode
 gw_test_run 'gwls uses visual worktree markers' test_gwls_uses_visual_worktree_markers
-gw_test_run 'gwdf logs force removal with the project emoji' test_gwd_logs_force_removal_with_project_prefix
+gw_test_run 'gwrf logs force removal with the project emoji' test_gwr_logs_force_removal_with_project_prefix

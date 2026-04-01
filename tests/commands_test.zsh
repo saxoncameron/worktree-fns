@@ -20,7 +20,7 @@ test_gwa_creates_worktree_and_copies_overlays() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Entered worktree' 'gwa should log success'
 }
 
-test_gwcd_gwp_and_gwr_change_directories() {
+test_gwcd_gwp_and_gwt_change_directories() {
   local repoDir worktreeDir
   repoDir=$(gw_test_make_repo) || return 1
   builtin cd "$repoDir" || return 1
@@ -36,10 +36,10 @@ test_gwcd_gwp_and_gwr_change_directories() {
 
   mkdir -p "$worktreeDir/src/nested" || return 1
   builtin cd "$worktreeDir/src/nested" || return 1
-  gw_test_capture gwr
-  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwr should succeed'
-  gw_test_assert_equal "$worktreeDir" "$PWD" 'gwr should jump to the current worktree root'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to worktree root' 'gwr should log navigation'
+  gw_test_capture gwt
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwt should succeed'
+  gw_test_assert_equal "$worktreeDir" "$PWD" 'gwt should jump to the current worktree root'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to worktree root' 'gwt should log navigation'
 
   builtin cd "$worktreeDir/src/nested" || return 1
   gw_test_capture gwp
@@ -117,7 +117,7 @@ test_gwh_preserves_branch_and_rejects_dirty_worktrees() {
 }
 
 gw_test_run 'gwa creates worktrees and copies overlays' test_gwa_creates_worktree_and_copies_overlays
-gw_test_run 'gwcd, gwp, and gwr change directories correctly' test_gwcd_gwp_and_gwr_change_directories
+gw_test_run 'gwcd, gwp, and gwt change directories correctly' test_gwcd_gwp_and_gwt_change_directories
 gw_test_run 'gwls reports empty and populated states' test_gwls_reports_empty_and_populated_states
 gw_test_run 'gwdiff reports usage, clean, and dirty states' test_gwdiff_reports_usage_clean_and_dirty_states
 gw_test_run 'gwh preserves branches and rejects dirty worktrees' test_gwh_preserves_branch_and_rejects_dirty_worktrees

@@ -4,7 +4,7 @@
 # - unstaged change summary (diff --stat)
 # - unmerged commits (ahead of main worktree HEAD)
 #
-# This is shared by "gwd" and "gwdiff" so both commands explain the worktree in
+# This is shared by "gwr" and "gwdiff" so both commands explain the worktree in
 # exactly the same way.
 _gw_print_worktree_diff() {
   local gitCommonDir mainHead repoRoot unmergedOutput unstagedOutput worktreeDir
