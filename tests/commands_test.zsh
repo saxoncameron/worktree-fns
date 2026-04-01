@@ -89,6 +89,7 @@ test_gwh_preserves_branch_and_rejects_dirty_worktrees() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT$GW_TEST_CAPTURE_STDERR" 'error: worktree has uncommitted changes' 'gwh should explain dirty worktree failures'
 
   repoDir=$(gw_test_make_repo) || return 1
+  /bin/rm -f "$repoDir/.env" "$repoDir/config/.gitignore"
   builtin cd "$repoDir" || return 1
   gwa feature >/dev/null 2>&1 || return 1
   worktreeDir="$repoDir/.worktrees/feature"

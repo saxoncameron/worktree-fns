@@ -166,8 +166,8 @@ gw_test_run() {
 
   if (( GW_TEST_FAILURE_COUNT == failedBefore )); then
     gw_test_record_failure "$name (returned: $rc)"
-    return 0
+    return 1
   fi
 
-  return 0
+  return 1
 }
