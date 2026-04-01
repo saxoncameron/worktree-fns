@@ -1,14 +1,25 @@
-# Return to the root of the current checked-out worktree.
+# Return to the root of the current managed worktree.
 #
 # This differs from "gwp":
-# - "gwt" uses Git's current worktree top-level
+# - "gwt" uses the current ".worktrees/<name>" top-level
 # - "gwp" uses the nearest parent containing .worktrees
 gwt() {
-  local worktreeRoot
-  worktreeRoot=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  local currentDir repoRoot worktreeName worktreeRoot
+  currentDir=${PWD:A}
+  repoRoot=$(_gw_find_repo_root) || {
     _gw_log info 'No worktree root to return to.'
     return 0
   }
+
+  [[ $currentDir == "$repoRoot/.worktrees/"* ]] || {
+    _gw_log info 'No worktree root to return to.'
+    return 0
+  }
+
+  worktreeName=${currentDir#"$repoRoot/.worktrees/"}
+  worktreeName=${worktreeName%%/*}
+  worktreeRoot="$repoRoot/.worktrees/$worktreeName"
+
   _gw_log success "Returned to worktree root %F{yellow}${worktreeRoot:t}%f"
   builtin cd "$worktreeRoot"
 }
