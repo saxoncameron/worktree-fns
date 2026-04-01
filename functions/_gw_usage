@@ -1,0 +1,17 @@
+# Print compact standalone CLI usage.
+_gw_usage() {
+  print 'worktree-fns <command> [args]'
+  print
+  print 'Commands:'
+  print '  add|gwa <name> [branch]'
+  print '  cd|gwcd <worktree>'
+  print '  delete|gwd <worktree>'
+  print '  force-delete|gwdf <worktree>'
+  print '  diff|gwdiff <worktree>'
+  print '  handoff|gwh [worktree]'
+  print '  list|gwls'
+  print '  merge|gwm [worktree]'
+  print '  project-root|gwp'
+  print '  worktree-root|gwr'
+  print '  init zsh'
+}

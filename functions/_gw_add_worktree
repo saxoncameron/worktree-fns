@@ -1,0 +1,25 @@
+# Create a managed worktree and print its absolute path on stdout.
+#
+# stdout is reserved for the final path so wrapper functions and the standalone
+# CLI can consume it without parsing Git's human-facing messages.
+_gw_add_worktree() {
+  local name repoRoot worktreeRoot
+  name=$1
+
+  [[ -n "$name" ]] || {
+    print -u2 'Usage: gwa <name> [branch]'
+    return 1
+  }
+
+  repoRoot=$(_gw_repo_root_path) || return 1
+  worktreeRoot="$repoRoot/.worktrees/$name"
+
+  if [[ -n "$2" ]]; then
+    git -C "$repoRoot" worktree add "$worktreeRoot" "$2" >&2 || return 1
+  else
+    git -C "$repoRoot" worktree add "$worktreeRoot" >&2 || return 1
+  fi
+
+  _gw_copy_local_overlay_files "$repoRoot" "$worktreeRoot"
+  print -r -- "$worktreeRoot"
+}

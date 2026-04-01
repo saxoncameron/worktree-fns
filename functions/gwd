@@ -7,18 +7,25 @@
 gwd() {
   setopt local_options no_monitor
   local arg branchName branchDeleteOutput currentDir hasForce=0 mainHead removeOutput repoRoot
-  local shouldCdBack=0 unmergedOutput worktreeDir
+  local shouldCdBack=0 unmergedOutput worktreeDir worktreeName
+  local -a removeArgs
 
-  repoRoot=$(_gw_find_repo_root) || return 1
+  repoRoot=$(_gw_repo_root_path) || return 1
   currentDir=${PWD:A}
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
   for arg in "$@"; do [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1; done
+  [[ -n "$worktreeDir" ]] || {
+    print -u2 'Usage: gwd <name-or-path>'
+    gwls >&2
+    return 1
+  }
 
   [[ $currentDir == "$repoRoot/.worktrees" || $currentDir == "$repoRoot/.worktrees/"* ]] && shouldCdBack=1
-  [[ -n "$worktreeDir" ]] && branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null)
+  branchName=$(git -C "$worktreeDir" symbolic-ref --quiet --short HEAD 2>/dev/null)
+  worktreeName="${worktreeDir:t}"
 
-  if (( ! hasForce )) && [[ -n "$worktreeDir" ]]; then
+  if (( ! hasForce )); then
     mainHead=$(git -C "$repoRoot" rev-parse HEAD 2>/dev/null)
     [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
     if [[ -n "$unmergedOutput" ]]; then
@@ -28,18 +35,22 @@ gwd() {
     fi
   fi
 
-  local removeStatus worktreeName="${worktreeDir:t}"
+  _gw_prune_clean_overlay_files "$repoRoot" "$worktreeDir" >/dev/null 2>&1
+  (( hasForce )) && removeArgs+=(--force)
+  removeArgs+=(-- "$worktreeDir")
+
+  local removeStatus
   print -P "%F{cyan}Removing worktree%f %F{yellow}$worktreeName%f"
-  removeOutput=$(git worktree remove "$@" 2>&1)
+  removeOutput=$(git -C "$repoRoot" worktree remove "${removeArgs[@]}" 2>&1)
   removeStatus=$?
 
   if (( removeStatus )); then
     print -r -- "$removeOutput"
-    [[ -n "$worktreeDir" ]] && _gw_print_worktree_diff "$worktreeDir"
+    _gw_print_worktree_diff "$worktreeDir"
     return 1
   fi
 
-  if [[ -n "$branchName" && -n "$worktreeDir" && "$branchName" == "$worktreeName" ]]; then
+  if [[ -n "$branchName" && "$branchName" == "$worktreeName" ]]; then
     print -P "%F{cyan}Deleting branch%f %F{yellow}$branchName%f"
     branchDeleteOutput=$(git -C "$repoRoot" branch -D -- "$branchName" 2>&1) || {
       print -r -- "$branchDeleteOutput"

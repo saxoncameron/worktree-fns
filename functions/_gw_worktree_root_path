@@ -1,0 +1,6 @@
+# Print the root of the currently checked-out worktree.
+_gw_worktree_root_path() {
+  local worktreeRoot
+  worktreeRoot=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  print -r -- "${worktreeRoot:A}"
+}

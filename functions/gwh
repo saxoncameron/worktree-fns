@@ -6,7 +6,7 @@
 gwh() {
   local currentDir repoRoot worktreeDir worktreeName
 
-  repoRoot=$(_gw_find_repo_root) || return 1
+  repoRoot=$(_gw_repo_root_path) || return 1
   currentDir=${PWD:A}
 
   if (( $# )); then
@@ -32,6 +32,7 @@ gwh() {
 
   # Check for uncommitted changes
   local statusOutput
+  _gw_prune_clean_overlay_files "$repoRoot" "$worktreeDir" >/dev/null 2>&1
   statusOutput=$(git -C "$worktreeDir" status --porcelain 2>/dev/null)
   if [[ -n "$statusOutput" ]]; then
     print -P "%F{red}error: worktree has uncommitted changes%f"
@@ -50,7 +51,7 @@ gwh() {
   [[ $currentDir == "$worktreeDir" || $currentDir == "$worktreeDir/"* ]] && shouldCdBack=1
 
   local removeOutput removeStatus
-  removeOutput=$(git worktree remove "$worktreeDir" 2>&1)
+  removeOutput=$(git -C "$repoRoot" worktree remove -- "$worktreeDir" 2>&1)
   removeStatus=$?
 
   if (( removeStatus )); then

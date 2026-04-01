@@ -1,0 +1,14 @@
+# Print overlay file paths relative to the repo root.
+#
+# These are local-only files that should exist in fresh worktrees, but should
+# not block clean removal if they remain untouched copies of the repo-root
+# originals.
+_gw_overlay_relpaths() {
+  local overlaySource relPath repoRoot
+  repoRoot=$1
+
+  while IFS= read -r -d '' overlaySource; do
+    relPath=${overlaySource#$repoRoot/}
+    print -r -- "$relPath"
+  done < <(find "$repoRoot" -path "$repoRoot/.worktrees" -prune -o -type f \( -name '.env' -o -name '.gitignore' \) -print0)
+}
