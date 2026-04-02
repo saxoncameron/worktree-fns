@@ -107,7 +107,8 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   print -r -- 'dirty change' >> "$worktreeDir/base.txt"
   gw_test_capture gwdiff feature
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwdiff should still succeed on dirty worktrees'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has pending changes:' 'gwdiff should report dirty worktrees'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has pending changes:' 'gwdiff should skip the redundant dirty-worktree heading'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info] Unstaged changes:' 'gwdiff should label unstaged summaries as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Unstaged changes:' 'gwdiff should show unstaged summaries'
 }
 
