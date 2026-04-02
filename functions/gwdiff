@@ -4,18 +4,26 @@
 # deletion failed. Keeping it as a first-class command also makes the failure
 # path in "gwr" much easier to reason about.
 gwdiff() {
-  local repoRoot worktreeDir hasArg=0
+  local currentDir repoRoot worktreeDir worktreeName hasArg=0
 
   for arg in "$@"; do [[ $arg != -* ]] && { hasArg=1; break }; done
 
+  repoRoot=$(_gw_find_repo_root) || return 1
+  currentDir=${PWD:A}
+
   if (( !hasArg )); then
-    _gw_log error 'Usage: gwdiff <worktree>' >&2
-    gwls >&2
-    return 1
+    if [[ $currentDir == "$repoRoot/.worktrees/"* ]]; then
+      worktreeName=${currentDir#"$repoRoot/.worktrees/"}
+      worktreeName=${worktreeName%%/*}
+      worktreeDir="$repoRoot/.worktrees/$worktreeName"
+    else
+      _gw_log error 'Usage: gwdiff <worktree>' >&2
+      gwls >&2
+      return 1
+    fi
   fi
 
-  repoRoot=$(_gw_find_repo_root) || return 1
-  worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
+  [[ -n "$worktreeDir" ]] || worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
   [[ -n "$worktreeDir" ]] || {
     _gw_log error 'error: could not resolve worktree'

@@ -110,6 +110,12 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has pending changes:' 'gwdiff should skip the redundant dirty-worktree heading'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info] Unstaged changes:' 'gwdiff should label unstaged summaries as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Unstaged changes:' 'gwdiff should show unstaged summaries'
+
+  builtin cd "$worktreeDir" || return 1
+  gw_test_capture gwdiff
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwdiff without args should use the current worktree when inside one'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Inspecting worktree' 'gwdiff without args should inspect the current worktree'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'feature' 'gwdiff without args should target the current worktree name'
 }
 
 test_gwh_preserves_branch_and_rejects_dirty_worktrees() {
