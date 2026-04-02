@@ -28,6 +28,7 @@ _gw_print_worktree_diff() {
     local summaryLine fileLines
     summaryLine=${unstagedOutput##*$'\n'}
     fileLines=${unstagedOutput%$'\n'*}
+    echo
     _gw_log info 'Unstaged changes:'
     print -r -- "$summaryLine"
     print -r -- "$fileLines"

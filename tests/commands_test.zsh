@@ -111,7 +111,7 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has pending changes:' 'gwdiff should skip the redundant dirty-worktree heading'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info] Unstaged changes:' 'gwdiff should label unstaged summaries as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Unstaged changes:' 'gwdiff should show unstaged summaries'
-  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n🌱 [info] Unstaged changes:' 'dirty gwdiff should not insert a blank line before unstaged changes'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n🌱 [info] Unstaged changes:' 'dirty gwdiff should insert a single blank line before unstaged changes'
   gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n\n🌱 [info] Unmerged commits:' 'dirty gwdiff should not insert extra blank lines before unmerged commits'
 
   builtin cd "$worktreeDir" || return 1
