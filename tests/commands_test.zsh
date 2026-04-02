@@ -87,7 +87,7 @@ test_gwls_reports_empty_and_populated_states() {
 }
 
 test_gwdiff_reports_usage_clean_and_dirty_states() {
-  local repoDir worktreeDir
+  local GW_LOG_STYLE='plain' repoDir worktreeDir
   repoDir=$(gw_test_make_repo) || return 1
   builtin cd "$repoDir" || return 1
 
@@ -103,6 +103,7 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwdiff should use the project emoji'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Inspecting worktree' 'gwdiff should log what it is inspecting'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has no pending changes:' 'gwdiff should report clean worktrees'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n🌱 [success] Worktree has no pending changes:' 'clean gwdiff should not insert a blank line before the summary'
 
   print -r -- 'dirty change' >> "$worktreeDir/base.txt"
   gw_test_capture gwdiff feature
@@ -110,6 +111,8 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has pending changes:' 'gwdiff should skip the redundant dirty-worktree heading'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info] Unstaged changes:' 'gwdiff should label unstaged summaries as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Unstaged changes:' 'gwdiff should show unstaged summaries'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n🌱 [info] Unstaged changes:' 'dirty gwdiff should not insert a blank line before unstaged changes'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n\n🌱 [info] Unmerged commits:' 'dirty gwdiff should not insert extra blank lines before unmerged commits'
 
   builtin cd "$worktreeDir" || return 1
   gw_test_capture gwdiff

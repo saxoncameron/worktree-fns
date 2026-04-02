@@ -19,7 +19,6 @@ _gw_print_worktree_diff() {
   unstagedOutput=$(git -C "$worktreeDir" -c color.ui=always diff --stat --stat-graph-width=3 2>/dev/null)
   [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
 
-  echo
   if [[ -z "$unstagedOutput" && -z "$unmergedOutput" ]]; then
     _gw_log success "Worktree has no pending changes: %F{yellow}${worktreeDir:t}%f"
     return 0
@@ -29,14 +28,13 @@ _gw_print_worktree_diff() {
     local summaryLine fileLines
     summaryLine=${unstagedOutput##*$'\n'}
     fileLines=${unstagedOutput%$'\n'*}
-    echo
     _gw_log info 'Unstaged changes:'
     print -r -- "$summaryLine"
     print -r -- "$fileLines"
   fi
 
   if [[ -n "$unmergedOutput" ]]; then
-    echo
+    [[ -n "$unstagedOutput" ]] && echo
     _gw_log info 'Unmerged commits:'
     print -r -- "$unmergedOutput"
   fi
