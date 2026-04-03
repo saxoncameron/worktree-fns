@@ -12,27 +12,26 @@ gwa() {
     return 1
   }
 
-  gwp 2>/dev/null
-  local constWorktree repoRoot worktreeRoot
-  constWorktree="./.worktrees/$1"
-  repoRoot=$(git rev-parse --show-toplevel) || return 1
+  local repoRoot worktreeRoot
+  repoRoot=$(_gw_find_repo_root) || repoRoot=$(git rev-parse --show-toplevel) || return 1
   worktreeRoot="$repoRoot/.worktrees/$1"
 
   _gw_log step "Creating worktree %F{yellow}${1}%f"
 
   if [[ -n "$2" ]]; then
-    git worktree add "$constWorktree" "$2" || {
+    git -C "$repoRoot" worktree add "$worktreeRoot" "$2" || {
       _gw_log error "Failed to create worktree %F{yellow}${1}%f"
       return 1
     }
   else
-    git worktree add "$constWorktree" || {
+    git -C "$repoRoot" worktree add "$worktreeRoot" || {
       _gw_log error "Failed to create worktree %F{yellow}${1}%f"
       return 1
     }
   fi
 
   _gw_copy_local_overlay_files "$repoRoot" "$worktreeRoot"
+  _gw_log success "Created worktree %F{yellow}${1}%f"
   _gw_log info "Entered worktree %F{yellow}${1}%f"
-  builtin cd "$constWorktree"
+  builtin cd "$worktreeRoot"
 }

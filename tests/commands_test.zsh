@@ -17,8 +17,9 @@ test_gwa_creates_worktree_and_copies_overlays() {
   gw_test_assert_equal '*.cache' "$(<"$worktreeDir/config/.gitignore")" 'gwa should copy nested gitignore files into new worktrees'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwa should log with the project emoji'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Creating worktree' 'gwa should log creation'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[success] Created worktree' 'gwa should log the primary worktree creation as success'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[info] Entered worktree' 'gwa should log the automatic cd as info'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Entered worktree' 'gwa should log success'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" '[success] Returned to repo root' 'gwa should not surface internal repo-root setup as a success log'
 }
 
 test_gwcd_gwp_and_gwt_change_directories() {
