@@ -33,6 +33,6 @@ gwa() {
   fi
 
   _gw_copy_local_overlay_files "$repoRoot" "$worktreeRoot"
-  _gw_log success "Entered worktree %F{yellow}${1}%f"
+  _gw_log info "Entered worktree %F{yellow}${1}%f"
   builtin cd "$constWorktree"
 }

@@ -59,6 +59,6 @@ gwr() {
   fi
 
   _gw_log success "Removed %F{yellow}${worktreeName}%f"
-  (( shouldCdBack )) && gwp
+  (( shouldCdBack )) && gwp --info
   return 0
 }

@@ -17,6 +17,7 @@ test_gwa_creates_worktree_and_copies_overlays() {
   gw_test_assert_equal '*.cache' "$(<"$worktreeDir/config/.gitignore")" 'gwa should copy nested gitignore files into new worktrees'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwa should log with the project emoji'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Creating worktree' 'gwa should log creation'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[info] Entered worktree' 'gwa should log the automatic cd as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Entered worktree' 'gwa should log success'
 }
 
@@ -45,6 +46,7 @@ test_gwcd_gwp_and_gwt_change_directories() {
   gw_test_capture gwp
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwp should succeed'
   gw_test_assert_equal "$repoDir" "$PWD" 'gwp should jump to the owning repo root'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[success] Returned to repo root' 'direct gwp should log repo-root navigation as success'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Returned to repo root' 'gwp should log navigation'
 }
 
@@ -102,6 +104,7 @@ test_gwdiff_reports_usage_clean_and_dirty_states() {
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwdiff should succeed on clean worktrees'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwdiff should use the project emoji'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Inspecting worktree' 'gwdiff should log what it is inspecting'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [info] Worktree has no pending changes:' 'clean gwdiff should label the clean summary as info'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Worktree has no pending changes:' 'gwdiff should report clean worktrees'
   gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" $'\n\n🌱 [success] Worktree has no pending changes:' 'clean gwdiff should not insert a blank line before the summary'
 
@@ -148,9 +151,27 @@ test_gwh_preserves_branch_and_rejects_dirty_worktrees() {
   gw_test_assert_contains "$branchStillExists" 'feature' 'gwh should preserve the branch'
 }
 
+test_gwh_auto_cd_back_logs_info() {
+  local repoDir worktreeDir
+  repoDir=$(gw_test_make_repo) || return 1
+  builtin cd "$repoDir" || return 1
+  /bin/rm -f "$repoDir/.env" "$repoDir/config/.gitignore"
+  builtin cd "$repoDir" || return 1
+  gwa feature >/dev/null 2>&1 || return 1
+  worktreeDir="$repoDir/.worktrees/feature"
+  mkdir -p "$worktreeDir/src/nested" || return 1
+  builtin cd "$worktreeDir/src/nested" || return 1
+
+  gw_test_capture gwh
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" 'gwh should succeed from inside the target worktree'
+  gw_test_assert_equal "$repoDir" "$PWD" 'gwh should cd back to repo root after removing the active worktree'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[info] Returned to repo root' 'automatic repo-root cd should log as info'
+}
+
 gw_test_run 'gwa creates worktrees and copies overlays' test_gwa_creates_worktree_and_copies_overlays
 gw_test_run 'gwcd, gwp, and gwt change directories correctly' test_gwcd_gwp_and_gwt_change_directories
 gw_test_run 'gwt logs info when not inside managed worktree' test_gwt_logs_info_when_not_inside_managed_worktree
 gw_test_run 'gwls reports empty and populated states' test_gwls_reports_empty_and_populated_states
 gw_test_run 'gwdiff reports usage, clean, and dirty states' test_gwdiff_reports_usage_clean_and_dirty_states
 gw_test_run 'gwh preserves branches and rejects dirty worktrees' test_gwh_preserves_branch_and_rejects_dirty_worktrees
+gw_test_run 'gwh auto-cd back logs info' test_gwh_auto_cd_back_logs_info

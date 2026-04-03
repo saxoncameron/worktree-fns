@@ -20,7 +20,7 @@ _gw_print_worktree_diff() {
   [[ -n "$mainHead" ]] && unmergedOutput=$(git -C "$worktreeDir" log --oneline "$mainHead..HEAD" 2>/dev/null)
 
   if [[ -z "$unstagedOutput" && -z "$unmergedOutput" ]]; then
-    _gw_log success "Worktree has no pending changes: %F{yellow}${worktreeDir:t}%f"
+    _gw_log info "Worktree has no pending changes: %F{yellow}${worktreeDir:t}%f"
     return 0
   fi
 

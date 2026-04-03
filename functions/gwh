@@ -61,6 +61,6 @@ gwh() {
   fi
 
   _gw_log success "Handed off %F{cyan}${branchName}%f; branch preserved and worktree removed"
-  (( shouldCdBack )) && gwp
+  (( shouldCdBack )) && gwp --info
   return 0
 }

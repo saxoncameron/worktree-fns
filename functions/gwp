@@ -4,12 +4,15 @@
 # want "gwp" to land on the owning repository root even when the current shell
 # is inside a linked worktree.
 gwp() {
-  local repoRoot
+  local logLabel repoRoot
+  logLabel='success'
+  [[ "$1" == '--info' ]] && logLabel='info'
+
   repoRoot=$(_gw_find_repo_root) || {
     local common_dir
     common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
     repoRoot=${common_dir%/.git}
   }
-  _gw_log success "Returned to repo root %F{yellow}${repoRoot:t}%f"
+  _gw_log "$logLabel" "Returned to repo root %F{yellow}${repoRoot:t}%f"
   builtin cd "$repoRoot"
 }
