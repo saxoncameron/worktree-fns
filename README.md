@@ -1,4 +1,4 @@
-# 🌱 worktree-fns
+# 🌴 worktree-fns
 
 `~/.zshrc` helper functions for efficient git worktrees.
 
