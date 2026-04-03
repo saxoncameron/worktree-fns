@@ -5,7 +5,7 @@ source "${0:A:h}/test_helper.zsh"
 test_log_outputs_emoji_by_default() {
   gw_test_capture _gw_log success 'Styled log message'
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" '_gw_log should succeed with styled output'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌴' '_gw_log should include the project emoji by default'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' '_gw_log should include the project emoji by default'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '[success]' '_gw_log should include the log label'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Styled log message' '_gw_log should include the message text'
 }
@@ -18,7 +18,7 @@ test_log_supports_plain_mode() {
   GW_LOG_STYLE=$previousStyle
 
   gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" '_gw_log should succeed in plain mode'
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌴 [error] Plain log message' '_gw_log should emit the project emoji and plain labels when requested'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [error] Plain log message' '_gw_log should emit the project emoji and plain labels when requested'
 }
 
 test_gwls_uses_dash_worktree_markers() {
@@ -28,7 +28,7 @@ test_gwls_uses_dash_worktree_markers() {
   gwa feature >/dev/null 2>&1 || return 1
 
   gw_test_capture gwls
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌴 [list]' 'gwls should keep the project emoji in the list heading'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [list]' 'gwls should keep the project emoji in the list heading'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '  - ' 'gwls should render worktree entries with dash bullets'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Available worktrees:' 'gwls should keep the list heading text'
 }
@@ -43,7 +43,7 @@ test_gwr_logs_force_removal_with_project_prefix() {
   builtin cd "$repoDir" || return 1
 
   gw_test_capture gwrf feature
-  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌴' 'gwrf should use the project emoji'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱' 'gwrf should use the project emoji'
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" 'Force-removing worktree' 'gwrf should log force deletion explicitly'
 }
 
