@@ -3,10 +3,11 @@
 # Defaults to a colored project prefix, with a plain fallback for tests or
 # machine-friendly output via GW_LOG_STYLE=plain / NO_COLOR.
 _gw_log() {
-  local color label message
+  local color displayLabel label message
   label=$1
   shift
   message="$*"
+  displayLabel=$label
 
   case "$label" in
     info)
@@ -23,6 +24,7 @@ _gw_log() {
       ;;
     step)
       color='blue'
+      displayLabel='...'
       ;;
     list)
       color='magenta'
@@ -33,9 +35,9 @@ _gw_log() {
   esac
 
   if [[ ${GW_LOG_STYLE:-styled} == 'plain' || -n ${NO_COLOR:-} ]]; then
-    print -r -- "🌱 [$label] $message"
+    print -r -- "🌱 [$displayLabel] $message"
     return 0
   fi
 
-  print -P "%F{$color}🌱 [$label]%f $message"
+  print -P "%F{$color}🌱 [$displayLabel]%f $message"
 }

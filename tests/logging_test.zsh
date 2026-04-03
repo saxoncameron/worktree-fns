@@ -21,6 +21,18 @@ test_log_supports_plain_mode() {
   gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [error] Plain log message' '_gw_log should emit the project emoji and plain labels when requested'
 }
 
+test_log_renders_step_as_ellipsis() {
+  local previousStyle
+  previousStyle=${GW_LOG_STYLE:-}
+  GW_LOG_STYLE='plain'
+  gw_test_capture _gw_log step 'Working on something'
+  GW_LOG_STYLE=$previousStyle
+
+  gw_test_assert_status 0 "$GW_TEST_CAPTURE_STATUS" '_gw_log should succeed for step messages'
+  gw_test_assert_contains "$GW_TEST_CAPTURE_STDOUT" '🌱 [...] Working on something' '_gw_log should render step labels as ellipsis'
+  gw_test_assert_not_contains "$GW_TEST_CAPTURE_STDOUT" '[step]' '_gw_log should not render the literal step label'
+}
+
 test_gwls_uses_dash_worktree_markers() {
   local repoDir
   repoDir=$(gw_test_make_repo) || return 1
@@ -49,5 +61,6 @@ test_gwr_logs_force_removal_with_project_prefix() {
 
 gw_test_run '_gw_log emits emoji by default' test_log_outputs_emoji_by_default
 gw_test_run '_gw_log supports plain mode' test_log_supports_plain_mode
+gw_test_run '_gw_log renders step as ellipsis' test_log_renders_step_as_ellipsis
 gw_test_run 'gwls uses dash worktree markers' test_gwls_uses_dash_worktree_markers
 gw_test_run 'gwrf logs force removal with the project emoji' test_gwr_logs_force_removal_with_project_prefix
