@@ -13,7 +13,17 @@ gwr() {
   currentDir=${PWD:A}
   worktreeDir=$(_gw_resolve_worktree_dir "$repoRoot" "$@")
 
-  for arg in "$@"; do [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1; done
+  local hasPositional=0
+  for arg in "$@"; do
+    [[ $arg == "--force" || $arg == "-f" ]] && hasForce=1
+    [[ $arg != -* ]] && hasPositional=1
+  done
+
+  if [[ -z "$worktreeDir" ]] && (( ! hasPositional )) && [[ $currentDir == "$repoRoot/.worktrees/"* ]]; then
+    worktreeDir=${currentDir%%/.worktrees/*}/.worktrees/${${currentDir#$repoRoot/.worktrees/}%%/*}
+    set -- "$@" "$worktreeDir"
+  fi
+
   [[ -n "$worktreeDir" ]] || {
     _gw_log error 'Usage: gwr <name-or-path>'
     gwls >&2
