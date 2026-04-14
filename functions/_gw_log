@@ -1,13 +1,13 @@
 # Print a styled status line for interactive use.
 #
 # Defaults to a colored project prefix, with a plain fallback for tests or
-# machine-friendly output via GW_LOG_STYLE=plain / NO_COLOR.
+# machine-friendly output via GW_LOG_STYLE=plain / NO_COLOR. Only error logs
+# keep a bracketed label; other log kinds render as a plain project prefix.
 _gw_log() {
-  local color displayLabel label message
+  local color prefix label message
   label=$1
   shift
   message="$*"
-  displayLabel=$label
 
   case "$label" in
     info)
@@ -24,7 +24,6 @@ _gw_log() {
       ;;
     step)
       color='blue'
-      displayLabel='...'
       ;;
     list)
       color='magenta'
@@ -34,10 +33,13 @@ _gw_log() {
       ;;
   esac
 
+  prefix='🌱'
+  [[ "$label" == 'error' ]] && prefix='🌱 [error]'
+
   if [[ ${GW_LOG_STYLE:-styled} == 'plain' || -n ${NO_COLOR:-} ]]; then
-    print -r -- "🌱 [$displayLabel] $message"
+    print -r -- "$prefix $message"
     return 0
   fi
 
-  print -P "%F{$color}🌱 [$displayLabel]%f $message"
+  print -P "%F{$color}${prefix}%f $message"
 }
