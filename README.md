@@ -34,13 +34,13 @@ gwp
 # cd back to worktree root
 gwt
 
-# remove specified worktree (print diff if remove fails)
-# blocks on unmerged commits unless forced
-# also deletes the same-named branch created for that worktree
-gwr <name-or-path>
+# remove named/current worktree; dirty trees fail unless forced
+# prints diff on failure; blocks unmerged commits unless forced
+# deletes branch only when branch name matches worktree name
+gwr [<name-or-path>]
 
-# remove --force (if changes detected)
-gwrf <name-or-path>
+# force-remove named/current worktree
+gwrf [<name-or-path>]
 
 # log worktree diff
 gwdiff <name-or-path>
